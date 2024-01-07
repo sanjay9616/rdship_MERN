@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import * as React from "react";
 import { Alert } from "@mui/material";
+import Loader from '@/components/Loader'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className='flex flex-col min-h-screen'>
           <Header />
           <div id="alert-message" className='absolute top-[5px] left-[60px] z-[1000] w-full flex justify-center'></div>
+          <div id="loader" className='hidden'><Loader></Loader></div>
           <section className='flex-1 flex flex-col'>{children}</section>
           <Footer />
         </main>
