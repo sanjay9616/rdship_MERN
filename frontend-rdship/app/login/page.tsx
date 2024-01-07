@@ -17,7 +17,6 @@ type LoginFormInputs = {
 
 const authService = new AuthService();
 const alertMessage = new AlertMessageService();
-const loaderService = new LoaderService();
 
 const page = () => {
 
@@ -30,7 +29,6 @@ const page = () => {
 
     const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
         try {
-            loaderService.showLoader();
             const res = await authService.login(data);
             if (res?.status == 200 && res?.success) {
                 alertMessage.addSuccess(MESSAGE.SUCCESS.LOGIN_SUCCESSFULL).show();
@@ -38,7 +36,6 @@ const page = () => {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
             }
         } finally {
-            loaderService.hideLoader();
         }
     }
 
