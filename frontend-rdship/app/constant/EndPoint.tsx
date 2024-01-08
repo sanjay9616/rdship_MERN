@@ -1,6 +1,7 @@
 
 const EndPoint = {
-    LOGIN : ""
+    LOGIN : "",
+    FORGET_PASSWORD:""
 
 }
 
