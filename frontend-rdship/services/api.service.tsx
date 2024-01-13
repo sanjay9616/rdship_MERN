@@ -1,8 +1,4 @@
-import { LoaderService } from "./loader.service";
-
 export class ApiService {
-
-    loaderService = new LoaderService();
 
     private getToken(): string | null {
         return localStorage.getItem('token');
@@ -61,7 +57,6 @@ export class ApiService {
     }
 
     private getHeaders(): Record<string, string> {
-        this.loaderService.showLoader();
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
         };
@@ -91,7 +86,6 @@ export class ApiService {
         // if (response.statusCode === 401) {
         //     this.handleUnauthorizedResponse();
         // }
-        this.loaderService.hideLoader();
         return response;
     };
 

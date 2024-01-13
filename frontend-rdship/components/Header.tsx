@@ -1,10 +1,8 @@
 "use client";
-
 import React, { useState } from 'react'
 import { CiSearch } from "react-icons/ci";
 import { MdAccountCircle } from "react-icons/md";
 import { HiShoppingCart } from "react-icons/hi";
-import { useRouter } from 'next/navigation';
 import Fab from '@mui/material/Fab';
 import Badge from '@mui/material/Badge';
 import Link from 'next/link';
@@ -15,7 +13,7 @@ import { FaRegistered } from "react-icons/fa";
 
 
 const Header = () => {
-  const router = useRouter()
+
   return (
     <section className="sticky top-0 w-full z-50 bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)]">
       <div className='flex flex-row items-center bg-white pl-4 pt-2 pr-4'>

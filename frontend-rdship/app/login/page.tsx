@@ -1,14 +1,17 @@
 "use client";
-import Loader from '@/components/Loader';
 import { MESSAGE } from '@/config/message';
 import { AlertMessageService } from '@/services/alertmessage.service';
 import { AuthService } from '@/services/auth.service';
-import { LoaderService } from '@/services/loader.service';
 import { FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material'
 import Link from 'next/link';
 import React, { useState } from 'react'
 import { SubmitHandler, useForm } from "react-hook-form";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { useDispatch, useSelector } from 'react-redux';
+import { LoaderService } from '@/services/loader.service';
+import { setIsAuthenticated } from '@/stores/reducers/authenticationSlice';
+import { setUserDetails } from '@/stores/reducers/userSlice';
+import { useRouter } from 'next/navigation';
 
 type LoginFormInputs = {
     email: string,
@@ -17,11 +20,16 @@ type LoginFormInputs = {
 
 const authService = new AuthService();
 const alertMessage = new AlertMessageService();
+const loaderService = new LoaderService();
 
 const page = () => {
 
+    const dispatch = useDispatch();
+    const isAuthenticated = useSelector((state: any) => state.authenticationReducer.isAuthenticated);
+    const user = useSelector((state: any) => state.userReducer);
     const [isPasswordVisible, setPasswordShow] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
+    const router = useRouter();
 
     const showPassword = (value: boolean) => {
         setPasswordShow(value);
@@ -29,13 +37,23 @@ const page = () => {
 
     const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
         try {
+            loaderService.showLoader();
             const res = await authService.login(data);
             if (res?.status == 200 && res?.success) {
                 alertMessage.addSuccess(MESSAGE.SUCCESS.LOGIN_SUCCESSFULL).show();
+                let responce: any = res?.data;
+                let isAuthenticated: any = true;
+                localStorage.setItem('_id', responce?._id);
+                dispatch(setIsAuthenticated(isAuthenticated));
+                dispatch(setUserDetails(responce));
+                loaderService.hideLoader();
+                router.push('/', { scroll: false });
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
             }
         } finally {
+            loaderService.hideLoader();
         }
     }
 
