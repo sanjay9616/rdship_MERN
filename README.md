@@ -42,19 +42,19 @@ Before you begin, ensure you have the following prerequisites:
 The project structure follows best practices for Next.js applications:
 
 - `frontend-rdship/`: Frontend Part of our Application.
-   1. `app/`: Top-level routing and views.
-   2. `components/`: Reusable UI components.
-   3. `config/`: Top-level routing and views.
-   4. `hooks/`: Top-level routing and views.
-   5. `models/`: Top-level routing and views.
-   6. `services/`: Top-level routing and views.
-   7. `stores/`: Top-level routing and views.
-   8. `utils/`: Utility functions and helpers.
+   - `app/`: Top-level routing and views.
+   - `components/`: Reusable UI components.
+   - `config/`: Top-level routing and views.
+   - `hooks/`: Top-level routing and views.
+   - `models/`: Top-level routing and views.
+   - `services/`: Top-level routing and views.
+   - `stores/`: Top-level routing and views.
+   - `utils/`: Utility functions and helpers.
 - `backened-rdship/`: Backened Part of our Application.
-   1. `config/`: Top-level routing and views.
-   2. `controllers/`: Top-level routing and views.
-   3. `models/`: Top-level routing and views.
-   4. `routes/`: Top-level routing and views.
+   - `config/`: Top-level routing and views.
+   - `controllers/`: Top-level routing and views.
+   - `models/`: Top-level routing and views.
+   - `routes/`: Top-level routing and views.
 
 
 ## Contributing
