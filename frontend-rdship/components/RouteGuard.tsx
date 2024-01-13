@@ -16,10 +16,8 @@ const RouteGuard = ({ children }: any) => {
     const pathName = usePathname();
     const router = useRouter();
     const isAuthenticated = useSelector((state: any) => state.authenticationReducer.isAuthenticated);
-    console.log('isAuthenticated', isAuthenticated)
 
     useEffect(() => {
-        console.log("Path is changing to:", pathName);
 
         if (isAuthenticated) {// done
             return

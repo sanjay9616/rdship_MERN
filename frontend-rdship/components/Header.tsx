@@ -9,10 +9,14 @@ import Link from 'next/link';
 import { RiLoginCircleFill } from "react-icons/ri";
 import { RiLogoutCircleFill } from "react-icons/ri";
 import { FaRegistered } from "react-icons/fa";
+import { useSelector } from 'react-redux';
 
 
 
 const Header = () => {
+
+  const isAuthenticated: boolean = useSelector((state: any) => state.authenticationReducer.isAuthenticated);
+  const userDetails: any = useSelector((state: any) => state.userReducer);
 
   return (
     <section className="sticky top-0 w-full z-50 bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)]">
@@ -25,7 +29,9 @@ const Header = () => {
           </button>
         </div>
         <div className='ml-auto mr-4 flex items-center'>
-          <span className='mr-2 text-[#2874f0] font-medium'>Sanjay</span>
+          <span className='mr-2 text-[#2874f0] font-medium'>
+            {isAuthenticated ? userDetails?.name || userDetails?.email : ''}
+          </span>
           <Fab className='text-[#2874f0] bg-[#F2F2F2] h-[35px] w-[35px] group relative'>
             <MdAccountCircle className='w-full h-full' />
             <div className='hidden group-hover:block absolute top-[35px] shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
@@ -51,7 +57,7 @@ const Header = () => {
           </Fab>
         </div>
         <Link href={'/view-cart'} className='flex'>
-          <Badge badgeContent={4} color="error" overlap="circular" className=''>
+          <Badge badgeContent={isAuthenticated ? userDetails?.cartItems?.length : '0'} color="error" overlap="circular" className=''>
             <Fab className='text-[#2874f0] bg-[#F2F2F2] h-[45px] w-[45px] z-0'>
               <HiShoppingCart className='w-[60%] h-[60%]' />
             </Fab>
