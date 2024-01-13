@@ -59,7 +59,7 @@ const page = () => {
 
     return (
         <section className='flex-1 flex items-center justify-center w-full bg-white'>
-            <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px]'>
+            <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px] mt-8 mb-8'>
                 <form className='m-8 flex flex-col justify-center' onSubmit={handleSubmit(onSubmit)}>
                     <div className='font-[600]'>Log In</div>
                     <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined" error={errors.email && errors.email.type == 'required' || errors.email && errors.email.type == 'pattern'}>
