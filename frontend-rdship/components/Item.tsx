@@ -1,5 +1,7 @@
 import React from 'react'
 import { IoIosStar } from "react-icons/io";
+import Currency from './Currency';
+import Decimal from './Decimal';
 
 const Item = (props: any) => {
   return (
@@ -15,18 +17,22 @@ const Item = (props: any) => {
         </div>
         <div className='flex items-center mt-[4px]'>
           <div className='flex items-center'>
-            <div className='text-[18px] font-[600] text-[#212121]'>₹98</div>
-            <div className='ml-[8px] text-[14px] text-[#878787] line-through inline-block'>₹170</div>
-            <div className='ml-[8px] text-[14px] text-[#26a541] font-[500] tracking-normal'>42% off</div>
+            <div className='text-[18px] font-[600] text-[#212121]'><Currency value={props?.markedPrice} /></div>
+            <div className='ml-[8px] text-[14px] text-[#878787] line-through inline-block'><Currency value={props?.sellingPrice} /></div>
+            <div className='ml-[8px] text-[14px] text-[#26a541] font-[500] tracking-normal'><Decimal value={props?.discountPercent} />% off</div>
           </div>
           <div className='ml-[8px] flex items-center justify-between bg-[#388e3c] w-[45px] rounded-[3px] text-white text-[14px] pl-[5px] pr-[5px]'>
-            <span>3.7</span>
-            <IoIosStar className='mb-[1px]'/>
+            <span><Decimal value={props?.ratingsAndReviewsDetails?.overAllRating} decimalDigits={1} /></span>
+            <IoIosStar className='mb-[1px]' />
           </div>
         </div>
         <div className='mt-[8px] flex items-center justify-between'>
           <button type='button' disabled className='w-[49%] bg-white border border-solid border-[#f0f0f0] h-[35px] rounded-[5px] text-[12px] text-[#878787] font-[500] pl-[5px] pr-[5px] cursor-not-allowed'>
-            1 * 300 g
+            {
+              Object.entries(props?.activeProduct).map(([key, val]: any, i: number) =>
+                Object.entries(props?.activeProduct).length - 1 != i ? <span key={i}>{val} * </span> : <span key={i}>{val} </span>
+              )
+            }
           </button>
           <button type='button' className='w-[49%] bg-white border border-solid border-[#f0f0f0] h-[35px] rounded-[5px] text-[12px] text-[#db4a2c] font-[500]'>
             ADD Item
