@@ -5,6 +5,7 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import http from '../service/httpService'
+import  {ApiService} from '../../services/api.service'
 import EndPoint from '../constant/EndPoint';
 type form={
     email:string,
@@ -34,7 +35,7 @@ const page = () => {
     function onSubmit(data:any){
         console.log(data);
         (async ()=>{
-           const response  = http.get(EndPoint.LOGIN,{})
+           const response  = ApiService
         })()
         
     }
@@ -74,12 +75,12 @@ const page = () => {
                                 </InputAdornment>
                             }
                         />
-                        <FormHelperText>{errors.password ? errors.password.message : ''}</FormHelperText>
+                        <FormHelperText>password re</FormHelperText>
                     </FormControl>
                     <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
                         <InputLabel htmlFor="outlined-adornment-password">Re Enter Password</InputLabel>
                         <OutlinedInput
-                          {...register("reEnterPassword",{required:true,validate:(data)=>validatePassword(data) }) }
+                          {...register("reEnterPassword",{required:"Re Enter Password Required",validate:(data)=>validatePassword(data) }) }
                           id="outlined-adornment-password" type={isRePasswordVisible ? 'text' : 'password'} label="Re Enter Password" placeholder='Re Enter Password'
                             endAdornment={
                                 <InputAdornment position="end">
@@ -89,7 +90,7 @@ const page = () => {
                                 </InputAdornment>
                             }
                         />
-                        <FormHelperText>{errors.reEnterPassword ? errors.reEnterPassword.message : ''}</FormHelperText>
+                        <FormHelperText>reenter password</FormHelperText>
                     </FormControl>
                     <div className='flex items-center'>
                         <div className='font-[500]'>Don't have an account?</div>
