@@ -10,12 +10,12 @@ import React, { useEffect, useReducer, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 const categoryList: Array<any> = [
-  { type: 'Grocery', url: '/assets/img/grocery/1.webp', routerLink: "/items/12" },
-  { type: 'Medicines', url: '/assets/img/medicines/1.webp', routerLink: "/items/12" },
-  { type: 'Furniture', url: '/assets/img/furniture/1.webp', routerLink: "/items/12" },
-  { type: 'Electronics', url: '/assets/img/electronics/1.webp', routerLink: "/items/12" },
-  { type: 'Fashion', url: '/assets/img/fashion/1.webp', routerLink: "/items/12" },
-  { type: 'Agricultural', url: '/assets/img/agricultural/1.jpg', routerLink: "/items/12" },
+  { type: 'Grocery', url: '/assets/img/grocery/1.webp', routerLink: "/items/Grocery" },
+  { type: 'Medicines', url: '/assets/img/medicines/1.webp', routerLink: "/search/Medicines" },
+  { type: 'Furniture', url: '/assets/img/furniture/1.webp', routerLink: "/items/Furniture" },
+  { type: 'Electronics', url: '/assets/img/electronics/1.webp', routerLink: "/items/Electronics" },
+  { type: 'Fashion', url: '/assets/img/fashion/1.webp', routerLink: "/items/Fashion" },
+  { type: 'Agricultural', url: '/assets/img/agricultural/1.jpg', routerLink: "/items/Agricultural" },
 ]
 const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
