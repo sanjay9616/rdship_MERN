@@ -34,9 +34,9 @@ const Footer = () => {
           <Link className='hover:underline' href="">Instagram</Link>
         </div>
       </div>
-      <hr className='py-[10px]'></hr>
+      <hr className=' py-[10px] '></hr>
       <div className=' flex flex-row gap-[10px] justify-around '>
-        <Link href="">Became a seller</Link>
+        <Link className='animate-bounce text-[green]' href="">Became a seller</Link>
         <Link href="">Advertise</Link>
         <Link href="">Gift Cards</Link>
       </div>
