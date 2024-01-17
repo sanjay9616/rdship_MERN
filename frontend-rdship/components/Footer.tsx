@@ -13,8 +13,8 @@ const Footer = () => {
           <Link className='hover:underline' href="">carrers</Link>
         </div>
         {/* Help Section */}
-        <div className=' flex flex-col  '>
-          <h3 className='text-[20px]'><b> Help</b></h3>
+        <div className=' flex flex-col   '>
+          <h3 className='text-[20px] underline' ><b> Help</b></h3>
           <Link className='hover:underline' href="">Payment</Link>
           <Link className='hover:underline' href="">Shipping</Link>
           <Link className='hover:underline' href="">Cancellation</Link>

@@ -52,8 +52,10 @@ const page = () => {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
                 loaderService.hideLoader();
             }
+
         } finally {
             loaderService.hideLoader();
+
         }
     }
 

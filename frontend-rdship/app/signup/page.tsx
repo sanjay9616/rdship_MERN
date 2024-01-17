@@ -5,17 +5,22 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import http from '../service/httpService'
-import  {ApiService} from '../../services/api.service'
+import { ApiService } from '../../services/api.service'
 import EndPoint from '../constant/EndPoint';
-type form={
-    email:string,
-    mobile:string,
-    password:string,
-    reEnterPassword:string
+import { AuthService } from '@/services/auth.service';
+import { AlertMessageService } from '@/services/alertmessage.service';
+import { MESSAGE } from '@/config/message';
+type form = {
+    email: string,
+    mobile: string,
+    password: string,
+    reEnterPassword: string
 }
-const page = () => {
-    const {register,handleSubmit, watch,formState: { errors }} = useForm<form>()
+const alertMessage = new AlertMessageService();
 
+const page = () => {
+    const { register, handleSubmit, watch, formState: { errors } ,reset} = useForm<form>()
+    const [clearFrom,setClearForm] = useState<number>(1); 
 
     const [isPasswordVisible, setPasswordShow] = useState(false);
     const [isRePasswordVisible, setRePasswordShow] = useState(false);
@@ -27,19 +32,44 @@ const page = () => {
     function showRePassword(value: boolean) {
         setRePasswordShow(value);
     }
-    function validatePassword(data:string){
-        return watch().password!==data ? "PassWord Does Not Match" : true;
-  
+    function validatePassword(data: string) {
+        return watch().password !== data ? "PassWord Does Not Match" : true;
+
+    }
+    function clearForm(){
+        console.log("called reset")
+        reset({
+            email: '',
+            mobile: '',
+            password: '',
+            reEnterPassword: ''
+        })
+        setClearForm(preState=>preState+1);
     }
 
-    function onSubmit(data:any){
+    function onSubmit(data: any) {
+        const authService = new AuthService();
         console.log(data);
-        (async ()=>{
-           const response  = ApiService
+        (async () => {
+            try {
+                const response = await authService.signUp(data)
+                console.log(response)
+                if (response?.status == 200 && response?.success) {
+                    alertMessage.addSuccess(MESSAGE.SUCCESS.ACCOUNT_CREATED).show();
+                    clearForm()
+                } else {
+                    const message = response.message;
+                    alertMessage.addError(message).show();
+                }
+            }
+            catch (err:any) {
+                console.log("error=",err)
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+            }
         })()
-        
-    }
 
+    }
+   
     return (
         <section className='flex-1 flex items-center justify-center w-full bg-white'>
             <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px] mt-8 mb-8'>
@@ -49,24 +79,26 @@ const page = () => {
                         <FormControl sx={{ mt: 2, width: '49%' }} variant="outlined">
                             <InputLabel>Enter Email</InputLabel>
                             <OutlinedInput
-                              {...register("email", { required:"Email Should be Required", 
-                              pattern:{value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,message:"Invalid Email Format"} })} 
-                             type='text' label="Enter Email" />
+                                {...register("email", {
+                                    required: "Email Should be Required",
+                                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid Email Format" }
+                                })}
+                                type='text' label="Enter Email" />
                             <FormHelperText>{errors.email ? errors.email.message : ''}</FormHelperText>
                         </FormControl>
                         <FormControl sx={{ mt: 2, width: '49%' }} variant="outlined">
                             <InputLabel>Enter Mobile</InputLabel>
                             <OutlinedInput
-                              {...register("mobile", { required:"Mobile Should be Required", pattern :{value:/^\d+$/,message:"Mobile Number Should contain only numeric character"} })}
-                             type='text' label="Enter Mobile" />
+                                {...register("mobile", { required: "Mobile Should be Required", pattern: { value: /^\d+$/, message: "Mobile Number Should contain only numeric character" } })}
+                                type='text' label="Enter Mobile" />
                             <FormHelperText>{errors.mobile ? errors.mobile.message : ''}</FormHelperText>
                         </FormControl>
                     </div>
                     <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
                         <InputLabel htmlFor="outlined-adornment-password">Enter Password</InputLabel>
                         <OutlinedInput
-                         {...register("password",{required:"Password is Required",pattern:{value:/^.{9,}$/,message:"password Should be Greater than 9 character"}})}
-                         id="outlined-adornment-password" type={isPasswordVisible ? 'text' : 'password'} label="Enter Password" placeholder='Enter Password'
+                            {...register("password", { required: "Password is Required", pattern: { value: /^.{9,}$/, message: "password Should be Greater than 9 character" } })}
+                            id="outlined-adornment-password" type={isPasswordVisible ? 'text' : 'password'} label="Enter Password" placeholder='Enter Password'
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton aria-label="toggle password visibility" edge="end" onClick={() => showPassword(!isPasswordVisible)}>
@@ -80,8 +112,8 @@ const page = () => {
                     <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
                         <InputLabel htmlFor="outlined-adornment-password">Re Enter Password</InputLabel>
                         <OutlinedInput
-                          {...register("reEnterPassword",{required:"Re Enter Password Required",validate:(data)=>validatePassword(data) }) }
-                          id="outlined-adornment-password" type={isRePasswordVisible ? 'text' : 'password'} label="Re Enter Password" placeholder='Re Enter Password'
+                            {...register("reEnterPassword", { required: "Re Enter Password Required", validate: (data) => validatePassword(data) })}
+                            id="outlined-adornment-password" type={isRePasswordVisible ? 'text' : 'password'} label="Re Enter Password" placeholder='Re Enter Password'
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton aria-label="toggle password visibility" edge="end" onClick={() => showRePassword(!isRePasswordVisible)}>
