@@ -5,7 +5,7 @@ const dbConfig = require("./config/database.config");
 const app = express()
 const cors = require('cors');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,7 +18,7 @@ mongoose.connect(dbConfig.uri, {
 }).then((established) => {
     console.log('MongoDB connection established');
 }).catch((err) => {
-    console.log(err);
+    console.log("mongoerrot->",err);
 })
 
 app.get('/', (req, res) => {

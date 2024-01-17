@@ -36,7 +36,12 @@ const page = () => {
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
             }
-        } finally {
+        }
+        catch(err){
+            console.error(err)
+            alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+        }
+        finally {
             setLoading(false);
         }
     }

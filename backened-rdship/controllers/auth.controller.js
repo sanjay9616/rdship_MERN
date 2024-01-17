@@ -32,7 +32,8 @@ exports.login = (req, res) => {
 }
 
 exports.signUp = (req, res) => {
-    account.findOne({ email: req.body.email })
+    const email = req.body.email.toLowerCase().trim();
+    account.findOne({ email: email })
         .then((result) => {
             if (result == null) {
                 const user = req.body
