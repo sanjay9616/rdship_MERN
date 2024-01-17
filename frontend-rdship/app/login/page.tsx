@@ -1,5 +1,4 @@
 "use client";
-import Loader from '@/components/Loader';
 import { MESSAGE } from '@/config/message';
 import { AlertMessageService } from '@/services/alertmessage.service';
 import { AuthService } from '@/services/auth.service';
@@ -8,6 +7,11 @@ import Link from 'next/link';
 import React, { useState } from 'react'
 import { SubmitHandler, useForm } from "react-hook-form";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { useDispatch, useSelector } from 'react-redux';
+import { LoaderService } from '@/services/loader.service';
+import { setIsAuthenticated } from '@/stores/reducers/authenticationSlice';
+import { setUserDetails } from '@/stores/reducers/userSlice';
+import { useRouter } from 'next/navigation';
 
 type LoginFormInputs = {
     email: string,
@@ -16,12 +20,16 @@ type LoginFormInputs = {
 
 const authService = new AuthService();
 const alertMessage = new AlertMessageService();
+const loaderService = new LoaderService();
 
 const page = () => {
 
+    const dispatch = useDispatch();
+    const isAuthenticated = useSelector((state: any) => state.authenticationReducer.isAuthenticated);
+    const user = useSelector((state: any) => state.userReducer);
     const [isPasswordVisible, setPasswordShow] = useState(false);
-    const [loading, setLoading] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
+    const router = useRouter();
 
     const showPassword = (value: boolean) => {
         setPasswordShow(value);
@@ -29,32 +37,31 @@ const page = () => {
 
     const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
         try {
-            setLoading(true)
+            loaderService.showLoader();
             const res = await authService.login(data);
             if (res?.status == 200 && res?.success) {
                 alertMessage.addSuccess(MESSAGE.SUCCESS.LOGIN_SUCCESSFULL).show();
+                let responce: any = res?.data;
+                let isAuthenticated: any = true;
+                localStorage.setItem('_id', responce?._id);
+                dispatch(setIsAuthenticated(isAuthenticated));
+                dispatch(setUserDetails(responce));
+                loaderService.hideLoader();
+                router.push('/', { scroll: false });
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
             }
-        }
-        catch(err){
-            console.error(err)
-            alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
-        }
-        finally {
-            setLoading(false);
-        }
-    }
 
-    const demo = () => {
-        console.log('demo');
-        alertMessage.addError('Some thing went wrong').show();
+        } finally {
+            loaderService.hideLoader();
+
+        }
     }
 
     return (
         <section className='flex-1 flex items-center justify-center w-full bg-white'>
-            {loading && <Loader />}
-            <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px]'>
+            <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px] mt-8 mb-8'>
                 <form className='m-8 flex flex-col justify-center' onSubmit={handleSubmit(onSubmit)}>
                     <div className='font-[600]'>Log In</div>
                     <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined" error={errors.email && errors.email.type == 'required' || errors.email && errors.email.type == 'pattern'}>
