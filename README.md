@@ -12,36 +12,56 @@ Welcome to **RDShip**! This project demonstrates a modern and scalable e-commerc
 - Real-time shopping cart with add, remove, and update capabilities.
 - Secure checkout process with payment integration.
 - Responsive design for seamless user experience across devices.
-
-## Getting Started
-
 ### Prerequisites
 
 Before you begin, ensure you have the following prerequisites:
 
-- Node.js (v18.11.10)
-- React (v18.2.0)
-- Next (v13.0.6)
-- Tailwind (v3.2.6)
-- Typescript (v4.9.3)
+- Node.js (v20.8.1)
+- React (v18)
+- Next (v14.0.4)
+- Tailwind (v3.3.0)
+- Typescript (v5)
 - npm or Yarn
 
 ### Installation
 
 1. Clone the repository:
 
-   https://github.com/sanjay9616/rdship_MERN.git <br/>
-   cd backened-rdship and install npm using npm i
-   cd frontend-rdship and install npm using npm i
+    - https://github.com/sanjay9616/rdship_MERN.git
+    - cd backened-rdship and install npm using npm i
+    - cd frontend-rdship and install npm using npm i
+## Getting Started
+
+1. Clone the repository, and after install npm:
+
+    - cd backened-rdship and npm run dev
+    - cd frontend-rdship and npm run dev
 
 ## Project Structure
+
+The project structure follows best practices for Next.js applications:
+
+- `frontend-rdship/`: Frontend Part of our Application.
+   - `app/`: Top-level routing and views.
+   - `components/`: Reusable UI components.
+   - `config/`: Top-level routing and views.
+   - `hooks/`: Top-level routing and views.
+   - `models/`: Top-level routing and views.
+   - `services/`: Top-level routing and views.
+   - `stores/`: Top-level routing and views.
+   - `utils/`: Utility functions and helpers.
+- `backened-rdship/`: Backened Part of our Application.
+   - `config/`: Top-level routing and views.
+   - `controllers/`: Top-level routing and views.
+   - `models/`: Top-level routing and views.
+   - `routes/`: Top-level routing and views.
 
 
 ## Contributing
 
 Contributions are welcome! To contribute, follow these steps:
 1. Fork the repository.
-2. Create a new branch.
+2. Create a new branch from qa branch.
 3. Make your changes and commit them.
 4. Push the changes and create a pull request.
 

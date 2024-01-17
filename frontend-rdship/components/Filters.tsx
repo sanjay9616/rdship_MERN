@@ -35,18 +35,20 @@ const names = [
 ];
 
 
-const Filters = () => {
+const Filters = (props: any) => {
+    console.log('props - Filter', props)
 
-    const [isActiveFilter, setIsActiveFilter] = React.useState<boolean>(false);
+    const [isActiveFilter, setIsActiveFilter] = React.useState<boolean>(true);
     const [personName, setPersonName] = React.useState<string[]>([]);
 
-    const handleChange = (event: SelectChangeEvent<typeof personName>) => {
-        const {
-            target: { value },
-        } = event;
-        setPersonName(
-            typeof value === 'string' ? value.split(',') : value,
-        );
+    const handleChange = (event: any) => {
+        if (!event.target.value.includes(undefined)) {
+            const { target: { value } } = event;
+            setPersonName(
+                typeof value === 'string' ? value.split(',') : value,
+            );
+        }
+        console.log('value', event.target.value)
     };
 
     const openCloseFilters = () => {
@@ -82,7 +84,7 @@ const Filters = () => {
                             renderValue={(selected) => selected.join(', ')}
                             MenuProps={MenuProps}
                         >
-                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px]'>
+                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px] border border-[red]'>
                                 <Checkbox />
                                 <input type="text" onKeyDown={(e) => e.stopPropagation()} placeholder='Search Sub Categories' className='w-full' />
                                 <button type='button' className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>

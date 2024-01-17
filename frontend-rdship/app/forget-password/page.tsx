@@ -44,9 +44,9 @@ const page = () => {
 
     return (
         <section className='flex-1 flex items-center justify-center w-full bg-white'>
-            <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px]'>
+            <div className='w-[40%] bg-white border border-solid border-[#ccc] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px] mt-8 mb-8'>
                 <div className='m-8 flex flex-col justify-center'>
-                    <div className='font-[600]'>Log In</div>
+                    <div className='font-[600]'>Forget Password</div>
                     <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
                         <InputLabel>Email</InputLabel>
                         <OutlinedInput 
