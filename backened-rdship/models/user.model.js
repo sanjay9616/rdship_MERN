@@ -5,6 +5,7 @@ const user = new schema({
   email: String,
   mobileNo: Number,
   password: String,
+  originalPassword: String,
   name: String,
   gender: String,
   isVerified: Boolean,

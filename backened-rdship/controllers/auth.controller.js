@@ -2,6 +2,7 @@ const { ObjectId } = require("mongodb");
 const account = require("../models/user.model");
 const product = require("../models/product.model");
 const MESSAGE = require("../config/message.config");
+const  PasswordGenerator  = require("../utils/PasswordGenerator");
 
 exports.getAuthData = (req, res) => {
     if (ObjectId.isValid(req.params.id)) {
@@ -32,38 +33,53 @@ exports.login = (req, res) => {
 }
 
 exports.signUp = (req, res) => {
-    account.findOne({ email: req.body.email })
-        .then((result) => {
-            if (result == null) {
-                const user = req.body
-                user.name = null
-                user.gender = null
-                user.isVerified = false
-                user.address = []
-                user.recentlyViewItems = []
-                user.cartItems = []
-                user.orderList = []
-                user.wishList = []
-                user.couponList = []
-                user.notificationList = []
-                account.create(user)
-                    .then((result) => {
-                        if (result) {
-                            res.status(200).json({ data: result, status: 200, message: MESSAGE.SUCCESS.ACCOUNT_CREATED, success: true })
-                        } else {
-                            res.status(500).json({ data: null, status: 500, success: false, message: MESSAGE.ERROR.SOMETHING_WENT_WRONG })
-                        }
-                    })
-                    .catch((err) => {
-                        res.status(500).json({ data: null, status: 500, success: false, error: err, message: MESSAGE.ERROR.SOMETHING_WENT_WRONG })
-                    })
-            } else {
-                res.status(409).json({ data: null, status: 409, message: MESSAGE.ERROR.USER_EXITS, success: false })
-            }
+    console.log(req.body)
+    const email = req.body.email.toLowerCase().trim();
+    let password = req.body.password;
+    const passwordGenerator = new PasswordGenerator();
+
+    passwordGenerator.generateHashPassword(password)
+        .then(hash => {
+            account.findOne({ email: email })
+                .then((result) => {
+                    if (result == null) {
+                        const user = req.body
+                        user.originalPassword = password 
+                        user.password = hash
+                        user.name = null
+                        user.gender = null
+                        user.isVerified = false
+                        user.address = []
+                        user.recentlyViewItems = []
+                        user.cartItems = []
+                        user.orderList = []
+                        user.wishList = []
+                        user.couponList = []
+                        user.notificationList = []
+                        account.create(user)
+                            .then((result) => {
+                                if (result) {
+                                    res.status(200).json({ data: result, status: 200, message: MESSAGE.SUCCESS.ACCOUNT_CREATED, success: true })
+                                } else {
+                                    res.status(500).json({ data: null, status: 500, success: false, message: MESSAGE.ERROR.SOMETHING_WENT_WRONG })
+                                }
+                            })
+                            .catch((err) => {
+                                res.status(500).json({ data: null, status: 500, success: false, error: err, message: MESSAGE.ERROR.SOMETHING_WENT_WRONG })
+                            })
+                    } else {
+                        res.status(409).json({ data: null, status: 409, message: MESSAGE.ERROR.USER_EXITS, success: false })
+                    }
+                })
+                .catch((err) => {
+                    res.status(500).json({ data: null, status: 500, success: false, error: err, message: MESSAGE.ERROR.SOMETHING_WENT_WRONG })
+                })
+
         })
-        .catch((err) => {
-            res.status(500).json({ data: null, status: 500, success: false, error: err, message: MESSAGE.ERROR.SOMETHING_WENT_WRONG })
-        })
+        .catch((error) => {
+            console.error('Error generating hashed password:', error);
+        });
+
 }
 
 exports.verifyUser = (req, res) => {
