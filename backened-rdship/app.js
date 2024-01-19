@@ -5,7 +5,7 @@ const dbConfig = require("./config/database.config");
 const app = express()
 const cors = require('cors');
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

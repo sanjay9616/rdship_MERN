@@ -13,8 +13,9 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 
-type SubcategoriesFormInputs = {
-    subCategories: any,
+type SubcategoriesFormInputs = {// brand, price, rating, discount
+    subCategories: Array<string>,
+    brands: Array<string>,
 };
 
 const Filters = (props: any) => {
@@ -25,8 +26,14 @@ const Filters = (props: any) => {
     const subCategoryList: Array<string> = props.subCategories;
     const [subCategoriesControlValue, setSubCategoriesControlValue] = useState<string[]>([]);
     const [subcategoryFilterCtrl, setSubcategoryFilterCtrl] = useState<string>('');
-    const [subCategoryListOptions, setsubCategoryListOptions] = useState<string[]>(subCategoryList);
+    const [subCategoryListOptions, setSubCategoryListOptions] = useState<string[]>(subCategoryList);
     const [subcategoryAllChecked, setSubcategoryAllChecked] = useState<boolean>(false);
+
+    const brandList: Array<string> = props.brands;
+    const [brandsControlValue, setBrandsControlValue] = useState<string[]>([]);
+    const [brandFilterCtrl, setBrandFilterCtrl] = useState<string>('');
+    const [brandListOptions, setBrandListOptions] = useState<string[]>(subCategoryList);
+    const [brandAllChecked, setBrandAllChecked] = useState<boolean>(false);
 
     const openCloseFilters = () => {
         setIsActiveFilter(!isActiveFilter);
@@ -36,6 +43,10 @@ const Filters = (props: any) => {
         setValue('subCategories', [], { shouldValidate: true });
     }, [subCategoriesControlValue]);
 
+    useEffect(() => {
+        setValue('brands', [], { shouldValidate: true });
+    }, [brandsControlValue]);
+
     const clearAll = () => {
         // props.parentCallback('clearAll');
         console.log('ccccccc', watch());
@@ -44,7 +55,7 @@ const Filters = (props: any) => {
     const filterSubcategoryListOptions = (event?: any) => {
         setSubcategoryFilterCtrl(event?.target?.value?.toLocaleLowerCase());
         let subcategory: any = subCategoryList.filter((subcategory: string) => subcategory.toLocaleLowerCase().trim().includes(event?.target?.value?.toLocaleLowerCase()?.trim() || ''))
-        setsubCategoryListOptions(subcategory);
+        setSubCategoryListOptions(subcategory);
     }
 
     const handleSubcategoryChange = (event: any) => {
@@ -69,6 +80,36 @@ const Filters = (props: any) => {
     const handleSelectAllSubcategories = (event: any) => {
         setSubcategoryAllChecked(event.target.checked);
         setSubCategoriesControlValue(event.target.checked ? subCategoryList : []);
+    }
+
+    const filterBrandListOptions = (event?: any) => {
+        setBrandFilterCtrl(event?.target?.value?.toLocaleLowerCase());
+        let brand: any = brandList.filter((brand: string) => brand.toLocaleLowerCase().trim().includes(event?.target?.value?.toLocaleLowerCase()?.trim() || ''))
+        setBrandListOptions(brand);
+    }
+
+    const handleBrandChange = (event: any) => {
+        const { target: { value } } = event;
+        if (!value.includes(undefined)) setBrandsControlValue(typeof value === 'string' ? value.split(',') : value);
+    }
+
+    const handleOpenCloseBrandDropdown = (event: any) => {
+        setBrandFilterCtrl('');
+        filterBrandListOptions();
+    }
+
+    useEffect(() => {
+        setBrandAllChecked(JSON.stringify(brandList.sort()) == JSON.stringify(brandsControlValue.sort()));
+    }, [brandsControlValue]);
+
+    const clearBrandFilterCtrl = () => {
+        setBrandFilterCtrl('');
+        filterBrandListOptions();
+    }
+
+    const handleSelectAllBrands = (event: any) => {
+        setBrandAllChecked(event.target.checked);
+        setBrandsControlValue(event.target.checked ? brandList : []);
     }
 
     return (
@@ -109,6 +150,32 @@ const Filters = (props: any) => {
                                     <MenuItem key={subcategory} value={subcategory}>
                                         <Checkbox checked={subCategoriesControlValue.includes(subcategory)} className='p-0' />
                                         <ListItemText primary={subcategory} className='ml-4' />
+                                    </MenuItem>
+                                )
+                            })}
+                        </Select>
+                    </FormControl>
+                    <FormControl className='w-full'>
+                        <InputLabel>Brands</InputLabel>
+                        <Select multiple input={<OutlinedInput label="Brands" />}
+                            value={brandsControlValue}
+                            {...register('brands')}
+                            onChange={handleBrandChange}
+                            renderValue={(selected) => selected.join(', ')}
+                            onOpen={handleOpenCloseBrandDropdown}
+                            onClose={handleOpenCloseBrandDropdown}>
+                            <li className='flex items-center pt-[0px] w-fill pl-[7px] pr-[16px] border border-[red]'>
+                                <Checkbox onChange={handleSelectAllBrands} checked={brandAllChecked} />
+                                <input type="text" onChange={filterBrandListOptions} onKeyDown={(e) => e.stopPropagation()} value={brandFilterCtrl || ''} placeholder='Search Brands' className='w-full' />
+                                {brandFilterCtrl &&
+                                    <button type='button' onClick={clearBrandFilterCtrl} className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
+                                }
+                            </li>
+                            {brandListOptions.map((brand: any) => {
+                                return (
+                                    <MenuItem key={brand} value={brand}>
+                                        <Checkbox checked={brandsControlValue.includes(brand)} className='p-0' />
+                                        <ListItemText primary={brand} className='ml-4' />
                                     </MenuItem>
                                 )
                             })}
