@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
-const schema = mongoose.Schema;
-const user = new schema({
+const { Schema } = mongoose;
+
+const user = new Schema({
     category: String,
     subCategory: String,
     itemDescription: String,

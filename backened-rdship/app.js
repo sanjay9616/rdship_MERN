@@ -27,6 +27,7 @@ app.get('/', (req, res) => {
 
 require('./routes/auth')(app);
 require('./routes/product')(app);
+require('./routes/cart')(app);
 
 app.listen(PORT, () => {
     console.log(`app listining on port ${PORT}`)
