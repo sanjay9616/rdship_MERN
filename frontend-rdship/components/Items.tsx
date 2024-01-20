@@ -43,8 +43,6 @@ const Items = (props: any) => {
         }
     }
 
-    // console.log('productInfo', productInfo)
-
     const handleParentCallback = (message: any) => {
         console.log('handleParentCallback', message)
     }
