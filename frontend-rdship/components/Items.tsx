@@ -14,7 +14,7 @@ const loaderService = new LoaderService();
 
 const Items = (props: any) => {
 
-    const [productInfo, setProductInfo] = useState<any>([]);
+    const [productInfo, setProductInfo] = useState<any>({});
     const [payload, setPayload] = React.useState<any>({
         searchStr: props.params?.searchStr?.length ? props.params.searchStr : null,
         category: props.params?.category?.length ? props.params.category : [],
@@ -43,6 +43,12 @@ const Items = (props: any) => {
         }
     }
 
+    // console.log('productInfo', productInfo)
+
+    const handleParentCallback = (message: any) => {
+        console.log('handleParentCallback', message)
+    }
+
     useEffect(() => {
         getProductDetails();
     }, [props])
@@ -50,7 +56,9 @@ const Items = (props: any) => {
     return (
         <section>
             <div>
-                <Filters payload = {...payload} subCategories = {productInfo?.subCategories} brands = {...productInfo?.brands} />
+                {payload && productInfo?.subCategories && productInfo?.brands &&
+                    <Filters payload={...payload} subCategories={productInfo?.subCategories} brands={...productInfo?.brands} parentCallback={handleParentCallback} />
+                }
             </div>
             <div className='mr-2 ml-2'>
                 <div className='flex items-center flex-wrap bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)] rounded-[5px] mt-2'>

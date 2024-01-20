@@ -10,49 +10,106 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import { Autocomplete, Button, TextField } from '@mui/material';
 import { IoMdCloseCircleOutline } from "react-icons/io";
+import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
+type SubcategoriesFormInputs = {// brand, price, rating, discount
+    subCategories: Array<string>,
+    brands: Array<string>,
 };
-const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-];
-
 
 const Filters = (props: any) => {
-    console.log('props - Filter', props)
+    // console.log('props - Filter', props)
+    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<SubcategoriesFormInputs>();
+    const [isActiveFilter, setIsActiveFilter] = useState<boolean>(true);
 
-    const [isActiveFilter, setIsActiveFilter] = React.useState<boolean>(true);
-    const [personName, setPersonName] = React.useState<string[]>([]);
+    const subCategoryList: Array<string> = props.subCategories;
+    const [subCategoriesControlValue, setSubCategoriesControlValue] = useState<string[]>([]);
+    const [subcategoryFilterCtrl, setSubcategoryFilterCtrl] = useState<string>('');
+    const [subCategoryListOptions, setSubCategoryListOptions] = useState<string[]>(subCategoryList);
+    const [subcategoryAllChecked, setSubcategoryAllChecked] = useState<boolean>(false);
 
-    const handleChange = (event: any) => {
-        if (!event.target.value.includes(undefined)) {
-            const { target: { value } } = event;
-            setPersonName(
-                typeof value === 'string' ? value.split(',') : value,
-            );
-        }
-        console.log('value', event.target.value)
-    };
+    const brandList: Array<string> = props.brands;
+    const [brandsControlValue, setBrandsControlValue] = useState<string[]>([]);
+    const [brandFilterCtrl, setBrandFilterCtrl] = useState<string>('');
+    const [brandListOptions, setBrandListOptions] = useState<string[]>(subCategoryList);
+    const [brandAllChecked, setBrandAllChecked] = useState<boolean>(false);
 
     const openCloseFilters = () => {
-        setIsActiveFilter(!isActiveFilter)
+        setIsActiveFilter(!isActiveFilter);
+    }
+
+    useEffect(() => {
+        setValue('subCategories', [], { shouldValidate: true });
+    }, [subCategoriesControlValue]);
+
+    useEffect(() => {
+        setValue('brands', [], { shouldValidate: true });
+    }, [brandsControlValue]);
+
+    const clearAll = () => {
+        // props.parentCallback('clearAll');
+        console.log('ccccccc', watch());
+    }
+
+    const filterSubcategoryListOptions = (event?: any) => {
+        setSubcategoryFilterCtrl(event?.target?.value?.toLocaleLowerCase());
+        let subcategory: any = subCategoryList.filter((subcategory: string) => subcategory.toLocaleLowerCase().trim().includes(event?.target?.value?.toLocaleLowerCase()?.trim() || ''))
+        setSubCategoryListOptions(subcategory);
+    }
+
+    const handleSubcategoryChange = (event: any) => {
+        const { target: { value } } = event;
+        if (!value.includes(undefined)) setSubCategoriesControlValue(typeof value === 'string' ? value.split(',') : value);
+    }
+
+    const handleOpenCloseSubcategoryDropdown = (event: any) => {
+        setSubcategoryFilterCtrl('');
+        filterSubcategoryListOptions();
+    }
+
+    useEffect(() => {
+        setSubcategoryAllChecked(JSON.stringify(subCategoryList.sort()) == JSON.stringify(subCategoriesControlValue.sort()));
+    }, [subCategoriesControlValue]);
+
+    const clearSubcategoryFilterCtrl = () => {
+        setSubcategoryFilterCtrl('');
+        filterSubcategoryListOptions();
+    }
+
+    const handleSelectAllSubcategories = (event: any) => {
+        setSubcategoryAllChecked(event.target.checked);
+        setSubCategoriesControlValue(event.target.checked ? subCategoryList : []);
+    }
+
+    const filterBrandListOptions = (event?: any) => {
+        setBrandFilterCtrl(event?.target?.value?.toLocaleLowerCase());
+        let brand: any = brandList.filter((brand: string) => brand.toLocaleLowerCase().trim().includes(event?.target?.value?.toLocaleLowerCase()?.trim() || ''))
+        setBrandListOptions(brand);
+    }
+
+    const handleBrandChange = (event: any) => {
+        const { target: { value } } = event;
+        if (!value.includes(undefined)) setBrandsControlValue(typeof value === 'string' ? value.split(',') : value);
+    }
+
+    const handleOpenCloseBrandDropdown = (event: any) => {
+        setBrandFilterCtrl('');
+        filterBrandListOptions();
+    }
+
+    useEffect(() => {
+        setBrandAllChecked(JSON.stringify(brandList.sort()) == JSON.stringify(brandsControlValue.sort()));
+    }, [brandsControlValue]);
+
+    const clearBrandFilterCtrl = () => {
+        setBrandFilterCtrl('');
+        filterBrandListOptions();
+    }
+
+    const handleSelectAllBrands = (event: any) => {
+        setBrandAllChecked(event.target.checked);
+        setBrandsControlValue(event.target.checked ? brandList : []);
     }
 
     return (
@@ -71,138 +128,65 @@ const Filters = (props: any) => {
                 <button type='button' className='ml-auto pl-2 pr-2 text-[14px] text-[#2874f0]'>CLEAR ALL</button>
             </div>
             {isActiveFilter &&
-                <div className='flex items-center gap-2 bg-white mt-2 mr-2 ml-2 p-2 rounded-[5px] shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
+                <form className='flex items-center gap-2 bg-white mt-2 mr-2 ml-2 p-2 rounded-[5px] shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
                     <FormControl className='w-full'>
-                        <InputLabel id="demo-multiple-checkbox-label">Sub Categories</InputLabel>
-                        <Select
-                            labelId="demo-multiple-checkbox-label"
-                            id="demo-multiple-checkbox"
-                            multiple
-                            value={personName}
-                            onChange={handleChange}
-                            input={<OutlinedInput label="Sub Categories" />}
+                        <InputLabel>Sub Categories</InputLabel>
+                        <Select multiple input={<OutlinedInput label="Sub Categories" />}
+                            value={subCategoriesControlValue}
+                            {...register('subCategories')}
+                            onChange={handleSubcategoryChange}
                             renderValue={(selected) => selected.join(', ')}
-                            MenuProps={MenuProps}
-                        >
-                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px] border border-[red]'>
-                                <Checkbox />
-                                <input type="text" onKeyDown={(e) => e.stopPropagation()} placeholder='Search Sub Categories' className='w-full' />
-                                <button type='button' className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
+                            onOpen={handleOpenCloseSubcategoryDropdown}
+                            onClose={handleOpenCloseSubcategoryDropdown}>
+                            <li className='flex items-center pt-[0px] w-fill pl-[7px] pr-[16px] border border-[red]'>
+                                <Checkbox onChange={handleSelectAllSubcategories} checked={subcategoryAllChecked} />
+                                <input type="text" onChange={filterSubcategoryListOptions} onKeyDown={(e) => e.stopPropagation()} value={subcategoryFilterCtrl || ''} placeholder='Search Sub Categories' className='w-full' />
+                                {subcategoryFilterCtrl &&
+                                    <button type='button' onClick={clearSubcategoryFilterCtrl} className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
+                                }
                             </li>
-                            {names.map((name) => (
-                                <MenuItem key={name} value={name}>
-                                    <Checkbox checked={personName.includes(name)} className='p-0' />
-                                    <ListItemText primary={name} className='ml-4' />
-                                </MenuItem>
-                            ))}
+                            {subCategoryListOptions.map((subcategory: any) => {
+                                return (
+                                    <MenuItem key={subcategory} value={subcategory}>
+                                        <Checkbox checked={subCategoriesControlValue.includes(subcategory)} className='p-0' />
+                                        <ListItemText primary={subcategory} className='ml-4' />
+                                    </MenuItem>
+                                )
+                            })}
                         </Select>
                     </FormControl>
                     <FormControl className='w-full'>
-                        <InputLabel id="brand-multiple-checkbox-label">Brand</InputLabel>
-                        <Select
-                            labelId="brand-multiple-checkbox-label"
-                            id="brand-multiple-checkbox"
-                            multiple
-                            value={['brand1']}
-                            input={<OutlinedInput label="Brand" />}
+                        <InputLabel>Brands</InputLabel>
+                        <Select multiple input={<OutlinedInput label="Brands" />}
+                            value={brandsControlValue}
+                            {...register('brands')}
+                            onChange={handleBrandChange}
                             renderValue={(selected) => selected.join(', ')}
-                        >
-                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px]'>
-                                <Checkbox />
-                                <input type="text" onKeyDown={(e) => e.stopPropagation()} placeholder='Search Sub Categories' className='w-full' />
-                                <button type='button' className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
+                            onOpen={handleOpenCloseBrandDropdown}
+                            onClose={handleOpenCloseBrandDropdown}>
+                            <li className='flex items-center pt-[0px] w-fill pl-[7px] pr-[16px] border border-[red]'>
+                                <Checkbox onChange={handleSelectAllBrands} checked={brandAllChecked} />
+                                <input type="text" onChange={filterBrandListOptions} onKeyDown={(e) => e.stopPropagation()} value={brandFilterCtrl || ''} placeholder='Search Brands' className='w-full' />
+                                {brandFilterCtrl &&
+                                    <button type='button' onClick={clearBrandFilterCtrl} className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
+                                }
                             </li>
-                            <MenuItem key='brand1' value='brand1'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'brand1'} className='ml-4' />
-                            </MenuItem>
-                            <MenuItem key='brand2' value='brand2'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'brand2'} className='ml-4' />
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl className='w-full'>
-                        <InputLabel id="price-multiple-checkbox-label">Price</InputLabel>
-                        <Select
-                            labelId="price-multiple-checkbox-label"
-                            id="price-multiple-checkbox"
-                            multiple
-                            value={['price1']}
-                            input={<OutlinedInput label="brand" />}
-                            renderValue={(selected) => selected.join(', ')}
-                        >
-                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px]'>
-                                <Checkbox />
-                                <input type="text" onKeyDown={(e) => e.stopPropagation()} placeholder='Search Sub Categories' className='w-full' />
-                                <button type='button' className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
-                            </li>
-                            <MenuItem key='price1' value='price1'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'price1'} className='ml-4' />
-                            </MenuItem>
-                            <MenuItem key='price2' value='price2'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'price2'} className='ml-4' />
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl className='w-full'>
-                        <InputLabel id="rating-multiple-checkbox-label">Rating</InputLabel>
-                        <Select
-                            labelId="rating-multiple-checkbox-label"
-                            id="rating-multiple-checkbox"
-                            multiple
-                            value={['rating1']}
-                            input={<OutlinedInput label="rating" />}
-                            renderValue={(selected) => selected.join(', ')}
-                        >
-                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px]'>
-                                <Checkbox />
-                                <input type="text" onKeyDown={(e) => e.stopPropagation()} placeholder='Search Sub Categories' className='w-full' />
-                                <button type='button' className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
-                            </li>
-                            <MenuItem key='rating1' value='rating1'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'rating1'} className='ml-4' />
-                            </MenuItem>
-                            <MenuItem key='rating2' value='rating2'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'rating2'} className='ml-4' />
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl className='w-full'>
-                        <InputLabel id="discount-multiple-checkbox-label">Discount</InputLabel>
-                        <Select
-                            labelId="discount-multiple-checkbox-label"
-                            id="discount-multiple-checkbox"
-                            multiple
-                            value={['discount1']}
-                            input={<OutlinedInput label="discount" />}
-                            renderValue={(selected) => selected.join(', ')}
-                        >
-                            <li className='flex items-center pt-[6px] w-fill pl-[7px] pr-[16px]'>
-                                <Checkbox />
-                                <input type="text" onKeyDown={(e) => e.stopPropagation()} placeholder='Search Sub Categories' className='w-full' />
-                                <button type='button' className='h-[25px] w-[25px]'><IoMdCloseCircleOutline className='w-full h-full' /></button>
-                            </li>
-                            <MenuItem key='discount1' value='discount1'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'discount1'} className='ml-4' />
-                            </MenuItem>
-                            <MenuItem key='discount2' value='discount2'>
-                                <Checkbox className='p-0' />
-                                <ListItemText primary={'discount2'} className='ml-4' />
-                            </MenuItem>
+                            {brandListOptions.map((brand: any) => {
+                                return (
+                                    <MenuItem key={brand} value={brand}>
+                                        <Checkbox checked={brandsControlValue.includes(brand)} className='p-0' />
+                                        <ListItemText primary={brand} className='ml-4' />
+                                    </MenuItem>
+                                )
+                            })}
                         </Select>
                     </FormControl>
                     <div className='ml-auto flex items-center pl-8'>
-                        <button className='bg-[#b81410] w-[100px] pl-[5px] pr-[5px] h-[35px] rounded-[5px] text-[14px] text-[#FFFFFF] shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
+                        <Button onClick={() => { clearAll() }} className='bg-[#b81410] hover:bg-[#b81410] w-[100px] pl-[5px] pr-[5px] h-[35px] rounded-[5px] text-[14px] text-[#FFFFFF] hover:text-[#FFFFFF] shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
                             CLEAR ALL
-                        </button>
+                        </Button>
                     </div>
-                </div>}
+                </form>}
         </div>
     )
 }
