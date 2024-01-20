@@ -44,12 +44,12 @@ const Items = (props: any) => {
     }
 
     const handleParentCallback = (message: any) => {
-        console.log('handleParentCallback', message)
+        setPayload({ category: payload.category, ...message, searchStr: payload.searchStr, itemsPerPage: payload.itemsPerPage, currentPage: payload.currentPage })
     }
 
     useEffect(() => {
         getProductDetails();
-    }, [props])
+    }, [payload])
 
     return (
         <section>
