@@ -86,8 +86,6 @@ const Filters = (props: any) => {
     }, [brandsControlValue]);
 
     const clearAll = () => {
-        // props.parentCallback('clearAll');
-        // setValue('subCategories', [], { shouldValidate: true });
         Promise.resolve()
             .then(() => {
                 setSubCategoriesControlValue([])

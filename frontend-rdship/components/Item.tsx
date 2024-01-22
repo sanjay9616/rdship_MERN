@@ -2,10 +2,19 @@ import React from 'react'
 import { IoIosStar } from "react-icons/io";
 import Currency from './Currency';
 import Decimal from './Decimal';
+import { usePathname, useRouter } from 'next/navigation';
+
 
 const Item = (props: any) => {
+
+  const router = useRouter();
+
+  const viewItem = (_id: string) => {
+    router.push(`/view-item/${_id}`);
+  }
+
   return (
-    <div className='max-w-[20%] min-w-[20%] cursor-pointer hover:shadow-[0_0_10px_#000000] hover:rounded-[5px]'>
+    <div onClick={() => {viewItem(props._id)}} className='max-w-[20%] min-w-[20%] cursor-pointer hover:shadow-[0_0_10px_#000000] hover:rounded-[5px]'>
       <div className='border border-solid border-[#ccc] m-2 p-2 rounded-[5px]'>
         <div className='flex items-center justify-center w-full h-[180px] p-[10px]'>
           <img src={props?.imgUrls && props?.imgUrls[0]} alt="" className='max-w-[100%] max-h-[100%]' />
@@ -27,13 +36,15 @@ const Item = (props: any) => {
           </div>
         </div>
         <div className='mt-[8px] flex items-center justify-between'>
-          <button type='button' disabled className='w-[49%] bg-white border border-solid border-[#f0f0f0] h-[35px] rounded-[5px] text-[12px] text-[#878787] font-[500] pl-[5px] pr-[5px] cursor-not-allowed'>
-            {
-              Object.entries(props?.activeProduct).map(([key, val]: any, i: number) =>
-                Object.entries(props?.activeProduct).length - 1 != i ? <span key={i}>{val} * </span> : <span key={i}>{val} </span>
-              )
-            }
-          </button>
+          {props?.activeProduct &&
+            <button type='button' disabled className='w-[49%] bg-white border border-solid border-[#f0f0f0] h-[35px] rounded-[5px] text-[12px] text-[#878787] font-[500] pl-[5px] pr-[5px] cursor-not-allowed'>
+              {
+                Object.entries(props?.activeProduct).map(([key, val]: any, i: number) =>
+                  Object.entries(props?.activeProduct).length - 1 != i ? <span key={i}>{val} * </span> : <span key={i}>{val} </span>
+                )
+              }
+            </button>
+          }
           <button type='button' className='w-[49%] bg-white border border-solid border-[#f0f0f0] h-[35px] rounded-[5px] text-[12px] text-[#db4a2c] font-[500]'>
             ADD Item
           </button>
