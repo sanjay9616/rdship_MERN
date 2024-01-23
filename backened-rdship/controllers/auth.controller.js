@@ -21,6 +21,10 @@ exports.getAuthData = (req, res) => {
 exports.login = (req, res) => {
     account.findOne({ email: req.body.email, password: req.body.password })
         .then((result) => {
+            const matchPassword = PasswordGenerator.matchPassword(req.body.password,result.password)
+            if(!matchPassword){
+                res.status(400).json({ data: null, status: 400, success: false, message: MESSAGE.ERROR.INVALID_CREDENTIAL }) 
+            }
             if (result) {
                 res.status(200).json({ data: result, status: 200, success: true, message: MESSAGE.SUCCESS.LOGIN_SUCCESSFULL })
             } else {
