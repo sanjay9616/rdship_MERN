@@ -15,11 +15,11 @@ exports.addBrand = async (req, res) => {
             active: true,
             images: [...body?.images]
         })
-        res.status(201).json({ message: "Brand added successfully", brand: brandDocument });
+       return res.status(201).json({ message: "Brand added successfully", brand: brandDocument });
     }
     catch (err) {
         console.err(err)
-        res.status(400).json({ message: "Brand added successfully", brand: brandDocument });
+        return res.status(400).json({ message: "Brand added successfully", brand: brandDocument });
     }
 }
 
