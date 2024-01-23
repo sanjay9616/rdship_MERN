@@ -30,7 +30,6 @@ const page = (props: any) => {
     const [isOpenRateDialog, setIsOpenRateDialog] = useState<boolean>(false);
     const [isOpenAskQuestionDialog, setIsOpenAskQuestionDialog] = useState<boolean>(false);
     const [itemDetails, setItemDetails] = useState<any>({});
-    const [itemDetailsCopy, setItemDetailsCopy] = useState<any>({});
     const [qtyValue, setQtyValue] = useState('');
 
     const handleOpenCloseRateDialog = (isOpen: boolean) => {
@@ -43,16 +42,14 @@ const page = (props: any) => {
 
     useEffect(() => {
         getProductDetails();
-    }, [itemId]);
+    }, []);
 
     const getProductDetails = async () => {
         try {
             loaderService.showLoader();
             const res = await homeService.getItemInfo(itemId)
             if (res?.status == 200 && res?.success) {
-                console.log('itemDetails', res.data)
                 setItemDetails(res?.data);
-                setItemDetailsCopy(res?.data);
                 loaderService.hideLoader();
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
@@ -65,6 +62,11 @@ const page = (props: any) => {
 
     const updateQty = (even: any) => {
         setQtyValue(naturalNumber(event))
+    }
+
+    const handleParentCallback = (message: any) => {
+        if(message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
+        handleOpenCloseRateDialog(message.isOpen);
     }
 
     return (
@@ -111,7 +113,7 @@ const page = (props: any) => {
                             </div>
                             <div className='mt-4 flex'>
                                 <div className='ml-[8px] flex items-center justify-between bg-[#388e3c] w-[45px] rounded-[3px] text-white text-[14px] pl-[5px] pr-[5px]'>
-                                    <span>{itemDetails.itemDetails?.ratingsAndReviewsDetails?.overAllRating || 0}</span>
+                                    <span><Decimal value={itemDetails.itemDetails?.ratingsAndReviewsDetails?.overAllRating || 0} decimalDigits={1} /></span>
                                     <IoIosStar className='mb-[1px]' />
                                 </div>
                                 <div className='ml-2 text-[#878787] font-[500]'>{itemDetails.itemDetails?.ratingsAndReviewsDetails?.numberOfRating || 0} Ratings</div>
@@ -193,7 +195,7 @@ const page = (props: any) => {
                                         open={isOpenRateDialog}
                                         onClose={() => handleOpenCloseRateDialog(false)}>
                                         <DialogContent>
-                                            <RateProductsDialog />
+                                            <RateProductsDialog id={itemDetails.itemDetails._id} parentCallback={handleParentCallback}/>
                                         </DialogContent>
                                     </Dialog>
                                 </div>
@@ -270,7 +272,7 @@ const page = (props: any) => {
                                             <div className='mt-2 text-[14px] font-[600]'>{rating?.name}</div>
                                             <div className='text-[12px] text-[#6f6f6f]'>{rating?.date}</div>
                                             <div className='mt-2 flex'>
-                                                Nice
+                                                {rating.review}
                                                 <div className='ml-auto mt-auto flex items-center'>
                                                     <button type='button' className='border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
                                                         <BiSolidLike />
@@ -339,11 +341,11 @@ const page = (props: any) => {
                             <div className='flex items-center justify-between w-full mt-4 text-[16px] font-[500]'>
                                 <div className='font-[600]'>Update Qty</div>
                                 <div className='flex items-center'>
-                                    <button type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
+                                    <button onClick={() => {setQtyValue(String(Number(qtyValue || 0) + 1))}} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
                                         <IoMdAdd />
                                     </button>
                                     <input type="text" onChange={(event: any) => {updateQty(event)}} value={qtyValue} className='rounded-[4px] border border-solid border-[#8bc5ff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[55px] h-[30px] flex items-center justify-center m-2 mr-2 text-center' />
-                                    <button type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
+                                    <button onClick={() => {setQtyValue(String(Number(qtyValue) > 1 ? Number(qtyValue) -1 : 1))}} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
                                         <IoMdRemove />
                                     </button>
                                 </div>
