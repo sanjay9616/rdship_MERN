@@ -27,7 +27,10 @@ app.get('/', (req, res) => {
 
 require('./routes/auth')(app);
 require('./routes/product')(app);
+require('./routes/cart')(app);
 
+// for product catalog
+require('./routes/productcatalog/catalog')(app)
 app.listen(PORT, () => {
     console.log(`app listining on port ${PORT}`)
 });

@@ -12,6 +12,11 @@ const bcrypt = require('bcrypt');
             throw error;
         }
     }
+
+    static matchPassword(originalPassword,hashedPassword){
+        return bcrypt.compareSync(originalPassword,hashedPassword)
+       
+    }
 }
 
 module.exports = PasswordGenerator;
