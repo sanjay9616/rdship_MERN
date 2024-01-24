@@ -10,7 +10,7 @@ const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
 const loaderService = new LoaderService();
 
-const RateProductsDialog = (props: any) => {
+const RateProductsDialog = (props: any) => { // Need to add Validations
   const itemId: string = props.id;
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>('');
@@ -33,21 +33,21 @@ const RateProductsDialog = (props: any) => {
       const res = await homeService.submitProductReview(payload?.userId, itemId, payload)
       if (res?.status == 200 && res?.success) {
         loaderService.hideLoader();
-        props.parentCallback({isOpen: false, responce: res?.data});
+        props.submitProductReview({isOpen: false, responce: res?.data});
         alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_SUBMITTED).show();
       } else {
-        props.parentCallback({isOpen: false});
+        props.submitProductReview({isOpen: false});
         loaderService.hideLoader();
         alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
       }
     } finally {
-      props.parentCallback({isOpen: false});
+      props.submitProductReview({isOpen: false});
       loaderService.hideLoader();
     }
   }
 
   const closeDialog = () => {
-    props.parentCallback({isOpen: false});
+    props.submitProductReview({isOpen: false});
   }
 
   return (

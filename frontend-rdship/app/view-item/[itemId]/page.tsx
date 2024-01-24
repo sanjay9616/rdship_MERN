@@ -64,9 +64,14 @@ const page = (props: any) => {
         setQtyValue(naturalNumber(event))
     }
 
-    const handleParentCallback = (message: any) => {
+    const handleSubmitProductReview = (message: any) => {
         if(message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
         handleOpenCloseRateDialog(message.isOpen);
+    }
+
+    const handleSubmitQuestion = (message: any) => {
+        if(message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
+        handleOpenCloseAskQuestionDialog(message.isOpen);
     }
 
     return (
@@ -195,7 +200,7 @@ const page = (props: any) => {
                                         open={isOpenRateDialog}
                                         onClose={() => handleOpenCloseRateDialog(false)}>
                                         <DialogContent>
-                                            <RateProductsDialog id={itemDetails.itemDetails._id} parentCallback={handleParentCallback}/>
+                                            <RateProductsDialog id={itemDetails.itemDetails._id} submitProductReview={handleSubmitProductReview}/>
                                         </DialogContent>
                                     </Dialog>
                                 </div>
@@ -302,7 +307,7 @@ const page = (props: any) => {
                                             open={isOpenAskQuestionDialog}
                                             onClose={() => handleOpenCloseAskQuestionDialog(false)}>
                                             <DialogContent>
-                                                <AskQuestionsDialog />
+                                                <AskQuestionsDialog id={itemDetails.itemDetails._id} submitQuestion={handleSubmitQuestion}/>
                                             </DialogContent>
                                         </Dialog>
                                     </div>
