@@ -18,6 +18,7 @@ import { MESSAGE } from '@/config/message';
 import Currency from '@/components/Currency';
 import Decimal from '@/components/Decimal';
 import { naturalNumber } from '@/utils/natural-number.util';
+import { useSelector } from 'react-redux';
 
 const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
@@ -26,6 +27,7 @@ const loaderService = new LoaderService();
 const page = (props: any) => {
 
     const itemId: string = props.params.itemId;
+    const userId: string = useSelector((state: any) => state.userReducer._id);
 
     const [isOpenRateDialog, setIsOpenRateDialog] = useState<boolean>(false);
     const [isOpenAskQuestionDialog, setIsOpenAskQuestionDialog] = useState<boolean>(false);
@@ -72,6 +74,40 @@ const page = (props: any) => {
     const handleSubmitQuestion = (message: any) => {
         if (message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
         handleOpenCloseAskQuestionDialog(message.isOpen);
+    }
+
+    const questionVote = async (questionId: string, vote: string) => {
+        try {
+            loaderService.showLoader();
+            const res = await homeService.questionVote(userId, itemDetails.itemDetails._id, questionId, vote, {})
+            if (res?.status == 200 && res?.success) {
+                alertMessage.addSuccess(MESSAGE.SUCCESS.QUESTION_VOTE_SUBMITTED).show();
+                setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: res?.data });
+                loaderService.hideLoader();
+            } else {
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
+            }
+        } finally {
+            loaderService.hideLoader();
+        }
+    }
+
+    const ratingVote = async (questionId: string, vote: string) => {
+        try {
+            loaderService.showLoader();
+            const res = await homeService.ratingVote(userId, itemDetails.itemDetails._id, questionId, vote, {})
+            if (res?.status == 200 && res?.success) {
+                alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_VOTE_SUBMITTED).show();
+                setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: res?.data });
+                loaderService.hideLoader();
+            } else {
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
+            }
+        } finally {
+            loaderService.hideLoader();
+        }
     }
 
     return (
@@ -279,11 +315,11 @@ const page = (props: any) => {
                                             <div className='mt-2 flex'>
                                                 {rating.review}
                                                 <div className='ml-auto mt-auto flex items-center'>
-                                                    <button type='button' className='border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { ratingVote(rating?._id, 'UP') }} type='button' disabled={rating?.likes?.includes(userId)} className={(rating?.likes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidLike />
                                                         <span>{rating?.likes?.length}</span>
                                                     </button>
-                                                    <button type='button' className='ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { ratingVote(rating?._id, 'DOWN') }} type='button' disabled={rating?.disLikes?.includes(userId)} className={(rating?.disLikes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidDislike />
                                                         <span>{rating?.disLikes?.length}</span>
                                                     </button>
@@ -320,11 +356,11 @@ const page = (props: any) => {
                                                     <div className='text-[14px] text-[#6f6f6f] truncate'> Ans: {question?.answer} </div>
                                                 </div>
                                                 <div className='flex items-center'>
-                                                    <button type='button' className='border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { questionVote(question?._id, 'UP') }} type='button' disabled={question?.likes?.includes(userId)} className={(question?.likes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidLike />
                                                         <span>{question?.likes?.length}</span>
                                                     </button>
-                                                    <button type='button' className='ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { questionVote(question?._id, 'DOWN') }} type='button' disabled={question?.disLikes?.includes(userId)} className={(question?.disLikes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidDislike />
                                                         <span>{question?.disLikes?.length}</span>
                                                     </button>

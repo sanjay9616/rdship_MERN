@@ -33,7 +33,7 @@ const AskQuestionsDialog = (props: any) => {
       if (res?.status == 200 && res?.success) {
         loaderService.hideLoader();
         props.submitQuestion({isOpen: false, responce: res?.data});
-        alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_SUBMITTED).show();
+        alertMessage.addSuccess(MESSAGE.SUCCESS.QUESTION_SUBMITTED).show();
       } else {
         props.submitQuestion({isOpen: false});
         loaderService.hideLoader();
