@@ -18,36 +18,38 @@ const RateProductsDialog = (props: any) => { // Need to add Validations
   const user = useSelector((state: any) => state.userReducer);
 
   const submitProductReview = async () => {
-    try {
-      loaderService.showLoader();
-      let payload = {
-        review: review,
-        rating: rating,
-        date: new Date().getTime(),
-        userId: user._id,
-        name: user.name || 'Unknown User',
-        isVerifiedPurchase: isAuthenticated,
-        likes: [],
-        disLikes: [],
-      }
-      const res = await homeService.submitProductReview(payload?.userId, itemId, payload)
-      if (res?.status == 200 && res?.success) {
+    if (rating && review.length) {
+      try {
+        loaderService.showLoader();
+        let payload = {
+          review: review,
+          rating: rating,
+          date: new Date().getTime(),
+          userId: user._id,
+          name: user.name || 'Unknown User',
+          isVerifiedPurchase: isAuthenticated,
+          likes: [],
+          disLikes: [],
+        }
+        const res = await homeService.submitProductReview(payload?.userId, itemId, payload)
+        if (res?.status == 200 && res?.success) {
+          loaderService.hideLoader();
+          props.submitProductReview({ isOpen: false, responce: res?.data });
+          alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_SUBMITTED).show();
+        } else {
+          props.submitProductReview({ isOpen: false });
+          loaderService.hideLoader();
+          alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+        }
+      } finally {
+        props.submitProductReview({ isOpen: false });
         loaderService.hideLoader();
-        props.submitProductReview({isOpen: false, responce: res?.data});
-        alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_SUBMITTED).show();
-      } else {
-        props.submitProductReview({isOpen: false});
-        loaderService.hideLoader();
-        alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
       }
-    } finally {
-      props.submitProductReview({isOpen: false});
-      loaderService.hideLoader();
     }
   }
 
   const closeDialog = () => {
-    props.submitProductReview({isOpen: false});
+    props.submitProductReview({ isOpen: false });
   }
 
   return (
@@ -58,6 +60,11 @@ const RateProductsDialog = (props: any) => { // Need to add Validations
       <div className='border border-solid border-[#ccc] rounded-[4px] flex flex-col'>
         <textarea onChange={(event) => { setReview(event.target.value) }} rows={5} className='resize-none w-full rounded-[4px] p-[10px]'></textarea>
         <div className='ml-auto text-[10px] font-[600] pr-[10px] pb-[10px]'>{500 - review.length}/500 character</div>
+      </div>
+      <div className='text-[#d9232d] ml-[5px] text-[10px] font-[600] pr-[10px] pb-[10px] h-[25px]'>
+        {
+          !rating ? <span>Rating is Required</span> : !review.length ? <span>Review is Required</span> : ''
+        }
       </div>
       <div className='ml-auto mt-2 flex items-center'>
         <Button onClick={closeDialog} type='button' className='h-[35px] pl-[10px] pr-[10px] text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] ml-auto'>Cancel</Button>
