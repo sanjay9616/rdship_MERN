@@ -65,12 +65,12 @@ const page = (props: any) => {
     }
 
     const handleSubmitProductReview = (message: any) => {
-        if(message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
+        if (message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
         handleOpenCloseRateDialog(message.isOpen);
     }
 
     const handleSubmitQuestion = (message: any) => {
-        if(message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
+        if (message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
         handleOpenCloseAskQuestionDialog(message.isOpen);
     }
 
@@ -200,7 +200,7 @@ const page = (props: any) => {
                                         open={isOpenRateDialog}
                                         onClose={() => handleOpenCloseRateDialog(false)}>
                                         <DialogContent>
-                                            <RateProductsDialog id={itemDetails.itemDetails._id} submitProductReview={handleSubmitProductReview}/>
+                                            <RateProductsDialog id={itemDetails.itemDetails._id} submitProductReview={handleSubmitProductReview} />
                                         </DialogContent>
                                     </Dialog>
                                 </div>
@@ -307,12 +307,13 @@ const page = (props: any) => {
                                             open={isOpenAskQuestionDialog}
                                             onClose={() => handleOpenCloseAskQuestionDialog(false)}>
                                             <DialogContent>
-                                                <AskQuestionsDialog id={itemDetails.itemDetails._id} submitQuestion={handleSubmitQuestion}/>
+                                                <AskQuestionsDialog id={itemDetails.itemDetails._id} submitQuestion={handleSubmitQuestion} />
                                             </DialogContent>
                                         </Dialog>
                                     </div>
                                     {itemDetails?.itemDetails?.questionsAndAnswers.map((question: any, i: number) => {
                                         return (
+                                            question?.question && question?.answer &&
                                             <div key={i} className='flex items-center justify-between mt-2 pt-2 border-t border-dashed border-[#c7c7c7]'>
                                                 <div className='w-[83%]'>
                                                     <div className='text-[14px] font-[600] truncate'> Q{i + 1}: {question?.question}</div>
@@ -346,11 +347,11 @@ const page = (props: any) => {
                             <div className='flex items-center justify-between w-full mt-4 text-[16px] font-[500]'>
                                 <div className='font-[600]'>Update Qty</div>
                                 <div className='flex items-center'>
-                                    <button onClick={() => {setQtyValue(String(Number(qtyValue || 0) + 1))}} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
+                                    <button onClick={() => { setQtyValue(String(Number(qtyValue || 0) + 1)) }} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
                                         <IoMdAdd />
                                     </button>
-                                    <input type="text" onChange={(event: any) => {updateQty(event)}} value={qtyValue} className='rounded-[4px] border border-solid border-[#8bc5ff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[55px] h-[30px] flex items-center justify-center m-2 mr-2 text-center' />
-                                    <button onClick={() => {setQtyValue(String(Number(qtyValue) > 1 ? Number(qtyValue) -1 : 1))}} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
+                                    <input type="text" onChange={(event: any) => { updateQty(event) }} value={qtyValue} className='rounded-[4px] border border-solid border-[#8bc5ff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[55px] h-[30px] flex items-center justify-center m-2 mr-2 text-center' />
+                                    <button onClick={() => { setQtyValue(String(Number(qtyValue) > 1 ? Number(qtyValue) - 1 : 1)) }} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
                                         <IoMdRemove />
                                     </button>
                                 </div>
