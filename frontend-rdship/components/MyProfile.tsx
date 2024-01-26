@@ -1,4 +1,5 @@
-import React from 'react'
+"use client"
+import React, { useEffect } from 'react'
 import { FormControl, FormHelperText, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -10,8 +11,25 @@ import Paper from '@mui/material/Paper';
 import { IoIosAddCircle } from "react-icons/io";
 import { IoMdRemoveCircle } from "react-icons/io";
 
+import { AuthService } from '@/services/auth.service';
+
 
 const MyProfile = () => {
+  // call user Detail API
+  useEffect(() => {
+    (async () => {
+      try {
+        const authService = new AuthService();
+        let result = await authService.getUserDetail("adityamaurya9717@gmail.com")
+        console.log("userDetail", result)
+      }
+      catch (err) {
+        console.log(err)
+      }
+    })()
+
+  }, [])
+
   const rows: Array<any> = [
     { name: 'Frozen yoghurt', calories: 156, fat: 9.0, carbs: 7, protein: 4.0 },
     { name: 'Frozen yoghurt', calories: 156, fat: 9.0, carbs: 7, protein: 4.0 },
@@ -95,10 +113,10 @@ const MyProfile = () => {
                     <TableCell align="center">
                       <div className='flex items-center pl-2 pr-2'>
                         <button type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB]'>
-                          <IoIosAddCircle className='w-full h-full'/>
+                          <IoIosAddCircle className='w-full h-full' />
                         </button>
                         <button type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB] ml-auto mr-4'>
-                          <IoMdRemoveCircle className='h-full w-full'/>
+                          <IoMdRemoveCircle className='h-full w-full' />
                         </button>
                       </div>
                     </TableCell>
