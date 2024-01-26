@@ -22,4 +22,10 @@ module.exports = (app) => {
     app.patch(URL_LIST.API.CART_ITEMS.UPDATE_CART_QTY.URL, auth.updateCartQty);
     app.post(URL_LIST.API.RECENTLY_VIEW.ADD_RECENTLY_VIEW_ITEM.URL, auth.addRecentlyViewItems);
     app.get(URL_LIST.API.HOME.HOME_DETAILS.URL, auth.getHomeDetails);
+
+    // user related API
+    app.get(URL_LIST.API.ACCOUNT.USER_DETAIL.URL, auth.getUserDetail);
+    app.post(URL_LIST.API.ACCOUNT.UPSERT_DELIVERY_ADDRESS.URL, auth.updateDeliveryAddress);
+
+
 };
