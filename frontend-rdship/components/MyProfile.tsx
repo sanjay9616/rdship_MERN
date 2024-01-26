@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, FormControl, FormHelperText, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -11,30 +11,88 @@ import Paper from '@mui/material/Paper';
 import { IoIosAddCircle } from "react-icons/io";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
-
+import { useDispatch, useSelector } from 'react-redux';
 import { AuthService } from '@/services/auth.service';
+import { MESSAGE } from '@/config/message';
+import { HomeService } from '@/services/home.service';
+import { AlertMessageService } from '@/services/alertmessage.service';
+import { LoaderService } from '@/services/loader.service';
+import { setUserDetails } from '@/stores/reducers/userSlice';
+
+const homeService = new HomeService();
+const alertMessage = new AlertMessageService();
+const loaderService = new LoaderService();
+const authService = new AuthService()
 
 
 const MyProfile = () => {
 
   const user = useSelector((state: any) => state.userReducer);
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset, control } = useForm();
+  const [isDisablePersonalInfo, setIsDisablePersonalInfo] = useState<boolean>(true);
+  const [isDisableAddressInfo, setIsDisableAddressInfo] = useState<boolean>(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setValue('name', user.name);
-    setValue('gender', user.gender);
-    setValue('email', user.email);
-    setValue('mobileNo', user.mobileNo);
-    for (let i = 0; i < user.address.length; i++) {
-      setValue(`address.${i}.area`, user.address[i].area);
-      setValue(`address.${i}.city`, user.address[i].city);
-      setValue(`address.${i}.pinCode`, user.address[i].pinCode);
-    }
-  }, [user, useForm])
+    setInitPrsonalInfoFormValues();
+    setInitAddressInfoFormValues();
+  }, [user])
 
-  const demo = () => {
-    console.log('demo', watch())
+  const setInitPrsonalInfoFormValues = () => {
+    setValue('name', user.name, { shouldValidate: true });
+    setValue('gender', user.gender, { shouldValidate: true });
+    setValue('email', user.email, { shouldValidate: true });
+    setValue('mobileNo', user.mobileNo, { shouldValidate: true });
+  }
+
+  const setInitAddressInfoFormValues = () => {
+    for (let i = 0; i < user.address.length; i++) {
+      setValue(`address.${i}.area`, user.address[i].area, { shouldValidate: true });
+      setValue(`address.${i}.city`, user.address[i].city, { shouldValidate: true });
+      setValue(`address.${i}.pinCode`, user.address[i].pinCode, { shouldValidate: true });
+    }
+  }
+
+  const updateProfile = async (payload: any, isSavePersonalInfo: boolean, isSaveAddressInfo: boolean) => {
+    try {
+      loaderService.showLoader();
+      const res = await authService.updateProfile(user._id, payload)
+      if (res?.status == 200 && res?.success) {
+        dispatch(setUserDetails(res?.data));
+        if (isSavePersonalInfo) setIsDisablePersonalInfo(true);
+        if (isSaveAddressInfo) setIsDisableAddressInfo(true);
+        loaderService.hideLoader();
+        alertMessage.addSuccess(MESSAGE.SUCCESS.PROFILE_UPDATED).show();
+      } else {
+        alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+        loaderService.hideLoader();
+      }
+    } finally {
+      loaderService.hideLoader();
+    }
+  }
+
+  const editPersonalInfo = () => {
+    setIsDisablePersonalInfo(false)
+  }
+
+  const editAddressInfo = () => {
+    setIsDisableAddressInfo(false);
+  }
+
+  const savePersonalInfo = () => {
+    let payload = {
+      name: watch().name,
+      gender: watch().gender,
+      email: watch().email,
+      mobileNo: Number(watch().mobileNo),
+    };
+    updateProfile(payload, true, false);
+  }
+
+  const saveAddressInfo = () => {
+    let payload = { address: watch().address }
+    updateProfile(payload, false, true);
   }
 
   return (
@@ -45,13 +103,19 @@ const MyProfile = () => {
         </div>
         <div className='mb-4 text-[18px] font-[600]'>
           <span>Personal Information</span>
-          <Button type='button' onClick={demo} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
+          {isDisablePersonalInfo &&
+            <Button type='button' onClick={() => { editPersonalInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
+          }
+          {!isDisablePersonalInfo &&
+            <Button type='button' onClick={() => { savePersonalInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Save</Button>
+          }
         </div>
         <div className='flex items-center justify-between gap-4'>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Full Name</InputLabel>
             <OutlinedInput type='text' label="Full Name"
               value={watch().name || ''}
+              readOnly={isDisablePersonalInfo}
               {...register('name')}
             />
             <FormHelperText>{false ? 'Full Name Is Required' : ''}</FormHelperText>
@@ -60,6 +124,7 @@ const MyProfile = () => {
             <InputLabel>Your Gender</InputLabel>
             <Select label="Your Gender"
               value={watch().gender || ''}
+              readOnly={isDisablePersonalInfo}
               {...register('gender')}
             >
               <MenuItem key={'male'} value={'male'}>Male</MenuItem>
@@ -71,14 +136,16 @@ const MyProfile = () => {
             <InputLabel>Email Address</InputLabel>
             <OutlinedInput type='text' label="Email Address"
               value={watch().email || ''}
+              readOnly={isDisablePersonalInfo}
               {...register('email')}
             />
-            <FormHelperText>{false ? 'Email Address Is Required' : ''}</FormHelperText>
+            <FormHelperText></FormHelperText>
           </FormControl>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Mobile Number</InputLabel>
             <OutlinedInput type='text' label="Mobile Number"
               value={watch().mobileNo || ''}
+              readOnly={isDisablePersonalInfo}
               {...register('mobileNo')}
             />
             <FormHelperText>{false ? 'Mobile Number Is Required' : ''}</FormHelperText>
@@ -88,7 +155,12 @@ const MyProfile = () => {
       <div className='mt-4 p-4 bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
         <div className='mb-4 text-[18px] font-[600]'>
           <span>Delivery Addresses</span>
-          <Button type='button' onClick={demo} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
+          {isDisableAddressInfo &&
+            <Button type='button' onClick={() => { editAddressInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
+          }
+          {!isDisableAddressInfo &&
+            <Button type='button' onClick={() => { saveAddressInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Save</Button>
+          }
         </div>
         <div>
           <TableContainer component={Paper}>
@@ -109,6 +181,8 @@ const MyProfile = () => {
                     <TableCell align="center">
                       <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
                         <OutlinedInput type='text'
+                          value={watch().address[i].area || ''}
+                          readOnly={isDisableAddressInfo}
                           {...register(`address.${i}.area` as const)}
                         />
                         <FormHelperText>{false ? 'Area Is Required' : ''}</FormHelperText>
@@ -117,6 +191,8 @@ const MyProfile = () => {
                     <TableCell align="center">
                       <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
                         <OutlinedInput type='text'
+                          value={watch().address[i].city || ''}
+                          readOnly={isDisableAddressInfo}
                           {...register(`address.${i}.city` as const)}
                         />
                         <FormHelperText>{false ? 'City Is Required' : ''}</FormHelperText>
@@ -125,6 +201,8 @@ const MyProfile = () => {
                     <TableCell align="center">
                       <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
                         <OutlinedInput type='text'
+                          value={watch().address[i].pinCode || ''}
+                          readOnly={isDisableAddressInfo}
                           {...register(`address.${i}.pinCode` as const)}
                         />
                         <FormHelperText>{false ? 'City Is Required' : ''}</FormHelperText>
