@@ -63,7 +63,7 @@ const Home = () => {
           })}
         </div>
       </div>
-      {recentlyViewItems?.length &&
+      {recentlyViewItems?.length > 0 &&
         <div className='bg-white'>
           <div className='flex items-center justify-center p-4 border-t border-b border-solid border-[#F2F2F2]'>
             <div className='text-[#2874f0] font-[600] text-[22px] leading-[30px] tracking-[.5px]'>

@@ -33,6 +33,7 @@ const page = (props: any) => {
     const [isOpenAskQuestionDialog, setIsOpenAskQuestionDialog] = useState<boolean>(false);
     const [itemDetails, setItemDetails] = useState<any>({});
     const [qtyValue, setQtyValue] = useState('');
+    const [activeProduct, setActiveProduct] = useState<any>({});
 
     const handleOpenCloseRateDialog = (isOpen: boolean) => {
         setIsOpenRateDialog(isOpen);
@@ -52,6 +53,7 @@ const page = (props: any) => {
             const res = await homeService.getItemInfo(itemId)
             if (res?.status == 200 && res?.success) {
                 setItemDetails(res?.data);
+                setActiveProduct(res?.data.itemDetails.activeProduct);
                 loaderService.hideLoader();
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
@@ -100,6 +102,25 @@ const page = (props: any) => {
             if (res?.status == 200 && res?.success) {
                 alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_VOTE_SUBMITTED).show();
                 setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: res?.data });
+                loaderService.hideLoader();
+            } else {
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
+            }
+        } finally {
+            loaderService.hideLoader();
+        }
+    }
+
+    const changeProductSpecification = async (name: string, value: string) => {
+        let active = {...activeProduct}
+        active[name] = value;
+        try {
+            loaderService.showLoader();
+            const res = await homeService.changeProductSpecification(itemDetails.itemDetails.itemDescription, active)
+            if (res?.status == 200 && res?.success) {
+                setItemDetails(res?.data);
+                setActiveProduct(res?.data.itemDetails.activeProduct);
                 loaderService.hideLoader();
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
@@ -167,36 +188,26 @@ const page = (props: any) => {
                                 <div className='ml-[8px] text-[16px] text-[#878787] line-through inline-block'><Currency value={itemDetails.itemDetails.markedPrice * (Number(qtyValue) || 1)} /></div>
                                 <div className='ml-[8px] text-[16px] text-[#26a541] font-[500] tracking-normal'><Decimal value={itemDetails.itemDetails.discountPercent} />% off</div>
                             </div>
-                            <div className='mt-4 fex items-center'>
-                                <div className='mt-4 flex items-center'>
-                                    <div className='w-[100px] text-[16px] font-[500] text-[#212121] capitalize'>quantity</div>
-                                    <div className='flex gap-4'>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>300 g</div>
-                                        </div>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>600 g</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='mt-4 fex items-center'>
-                                <div className='mt-4 flex items-center'>
-                                    <div className='w-[100px] text-[16px] font-[500] text-[#212121] capitalize'>Pack Of</div>
-                                    <div className='flex gap-4'>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>1</div>
-                                        </div>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>2</div>
+                            {itemDetails.itemDetails.filterAttributesList.map((filterAttr: any, i: number) => {
+                                return (
+                                    <div key={i} className='mt-4 fex items-center'>
+                                        <div className='mt-4 flex items-center'>
+                                            <div className='w-[100px] text-[16px] font-[500] text-[#212121] capitalize'>{filterAttr?.name.split('_').join(' ')}</div>
+                                            <div className='flex gap-4'>
+                                                {filterAttr.items.map((item: any, j: number) => {
+                                                    return (
+                                                        <div key={j} onClick={() => {changeProductSpecification(filterAttr?.name, item.value)}} className='flex'>
+                                                            <input type="radio" value={item.value} className='hidden' name={filterAttr?.name.split('_').join(' ')}/>
+                                                            <div className={(item.selected ? 'border-[#2874f0]' : 'border-[#e0e0e0]') + " flex items-center justify-center border-2 border-solid w-[70px] h-[30px] cursor-pointer"}>{item.value}</div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                )
+                            })
+                            }
                             <div className='mt-4'>
                                 <div className='text-[16px] font-[600] text-[#212121]'>Highlights</div>
                                 <div className='mt-2 border-b border-dashed border-[#c7c7c7]'>
