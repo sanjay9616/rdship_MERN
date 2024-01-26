@@ -13,7 +13,7 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 
-type SubcategoriesFormInputs = {// brand, price, rating, discount
+type SubcategoriesFormInputs = {
     subCategories: Array<string>,
     brands: Array<string>,
     sellingPrice: any,

@@ -1,5 +1,6 @@
-import React from 'react'
-import { FormControl, FormHelperText, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material'
+"use client"
+import React, { useEffect } from 'react'
+import { Button, FormControl, FormHelperText, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,46 +10,75 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { IoIosAddCircle } from "react-icons/io";
 import { IoMdRemoveCircle } from "react-icons/io";
+import { useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
 
 
 const MyProfile = () => {
-  const rows: Array<any> = [
-    { name: 'Frozen yoghurt', calories: 156, fat: 9.0, carbs: 7, protein: 4.0 },
-    { name: 'Frozen yoghurt', calories: 156, fat: 9.0, carbs: 7, protein: 4.0 },
-    { name: 'Frozen yoghurt', calories: 156, fat: 9.0, carbs: 7, protein: 4.0 },
-  ];
+
+  const user = useSelector((state: any) => state.userReducer);
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset, control } = useForm();
+
+  useEffect(() => {
+    setValue('name', user.name);
+    setValue('gender', user.gender);
+    setValue('email', user.email);
+    setValue('mobileNo', user.mobileNo);
+    for (let i = 0; i < user.address.length; i++) {
+      setValue(`address.${i}.area`, user.address[i].area);
+      setValue(`address.${i}.city`, user.address[i].city);
+      setValue(`address.${i}.pinCode`, user.address[i].pinCode);
+    }
+  }, [user, useForm])
+
+  const demo = () => {
+    console.log('demo', watch())
+  }
+
   return (
-    <section>
+    <form>
       <div className='p-4 bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)] relative'>
         <div className='absolute top-[15px] z-[9] left-[469px] bg-[#c6e0ed] rotate-[-45deg] flex items-center justify-center h-[100px] w-[100px] rounded-[50%] opacity-[0.4] capitalize text-[#b81410]'>
           Verified
         </div>
         <div className='mb-4 text-[18px] font-[600]'>
           <span>Personal Information</span>
-          <button className='ml-4 pl-4 pr-4 text-[#2874f0] bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</button>
+          <Button type='button' onClick={demo} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
         </div>
         <div className='flex items-center justify-between gap-4'>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Full Name</InputLabel>
-            <OutlinedInput type='text' label="Full Name" />
+            <OutlinedInput type='text' label="Full Name"
+              value={watch().name || ''}
+              {...register('name')}
+            />
             <FormHelperText>{false ? 'Full Name Is Required' : ''}</FormHelperText>
           </FormControl>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Your Gender</InputLabel>
-            <Select label="Your Gender">
-              <MenuItem value='Male'>Male</MenuItem>
-              <MenuItem value='Female'>Female</MenuItem>
+            <Select label="Your Gender"
+              value={watch().gender || ''}
+              {...register('gender')}
+            >
+              <MenuItem key={'male'} value={'male'}>Male</MenuItem>
+              <MenuItem key={"female"} value={'female'}>Female</MenuItem>
             </Select>
             <FormHelperText>{false ? 'Full Name Is Required' : ''}</FormHelperText>
           </FormControl>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Email Address</InputLabel>
-            <OutlinedInput type='text' label="Email Address" />
+            <OutlinedInput type='text' label="Email Address"
+              value={watch().email || ''}
+              {...register('email')}
+            />
             <FormHelperText>{false ? 'Email Address Is Required' : ''}</FormHelperText>
           </FormControl>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Mobile Number</InputLabel>
-            <OutlinedInput type='text' label="Mobile Number" />
+            <OutlinedInput type='text' label="Mobile Number"
+              value={watch().mobileNo || ''}
+              {...register('mobileNo')}
+            />
             <FormHelperText>{false ? 'Mobile Number Is Required' : ''}</FormHelperText>
           </FormControl>
         </div>
@@ -56,7 +86,7 @@ const MyProfile = () => {
       <div className='mt-4 p-4 bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)]'>
         <div className='mb-4 text-[18px] font-[600]'>
           <span>Delivery Addresses</span>
-          <button className='ml-4 pl-4 pr-4 text-[#2874f0] bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</button>
+          <Button type='button' onClick={demo} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
         </div>
         <div>
           <TableContainer component={Paper}>
@@ -71,34 +101,40 @@ const MyProfile = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row, i) => (
-                  <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                {watch("address") && watch("address").map((formGroup: any, i: any) => (
+                  <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                     <TableCell component="th" scope="row">{i + 1}</TableCell>
                     <TableCell align="center">
                       <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
-                        <OutlinedInput type='text' />
+                        <OutlinedInput type='text'
+                          {...register(`address.${i}.area` as const)}
+                        />
                         <FormHelperText>{false ? 'Area Is Required' : ''}</FormHelperText>
                       </FormControl>
                     </TableCell>
                     <TableCell align="center">
                       <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
-                        <OutlinedInput type='text' />
+                        <OutlinedInput type='text'
+                          {...register(`address.${i}.city` as const)}
+                        />
                         <FormHelperText>{false ? 'City Is Required' : ''}</FormHelperText>
                       </FormControl>
                     </TableCell>
                     <TableCell align="center">
                       <FormControl sx={{ mt: 2, width: '100%' }} variant="outlined">
-                        <OutlinedInput type='text' />
+                        <OutlinedInput type='text'
+                          {...register(`address.${i}.pinCode` as const)}
+                        />
                         <FormHelperText>{false ? 'City Is Required' : ''}</FormHelperText>
                       </FormControl>
                     </TableCell>
                     <TableCell align="center">
                       <div className='flex items-center pl-2 pr-2'>
                         <button type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB]'>
-                          <IoIosAddCircle className='w-full h-full'/>
+                          <IoIosAddCircle className='w-full h-full' />
                         </button>
                         <button type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB] ml-auto mr-4'>
-                          <IoMdRemoveCircle className='h-full w-full'/>
+                          <IoMdRemoveCircle className='h-full w-full' />
                         </button>
                       </div>
                     </TableCell>
@@ -109,7 +145,7 @@ const MyProfile = () => {
           </TableContainer>
         </div>
       </div>
-    </section>
+    </form>
   )
 }
 

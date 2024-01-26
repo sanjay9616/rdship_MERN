@@ -24,7 +24,7 @@ const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
 const loaderService = new LoaderService();
 
-const page = (props: any) => {
+const page = (props: any) => { // need to recent view item api
 
     const itemId: string = props.params.itemId;
     const userId: string = useSelector((state: any) => state.userReducer._id);
