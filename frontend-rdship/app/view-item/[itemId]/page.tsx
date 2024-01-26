@@ -18,6 +18,7 @@ import { MESSAGE } from '@/config/message';
 import Currency from '@/components/Currency';
 import Decimal from '@/components/Decimal';
 import { naturalNumber } from '@/utils/natural-number.util';
+import { useSelector } from 'react-redux';
 
 const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
@@ -26,12 +27,13 @@ const loaderService = new LoaderService();
 const page = (props: any) => {
 
     const itemId: string = props.params.itemId;
+    const userId: string = useSelector((state: any) => state.userReducer._id);
 
     const [isOpenRateDialog, setIsOpenRateDialog] = useState<boolean>(false);
     const [isOpenAskQuestionDialog, setIsOpenAskQuestionDialog] = useState<boolean>(false);
     const [itemDetails, setItemDetails] = useState<any>({});
-    const [itemDetailsCopy, setItemDetailsCopy] = useState<any>({});
     const [qtyValue, setQtyValue] = useState('');
+    const [activeProduct, setActiveProduct] = useState<any>({});
 
     const handleOpenCloseRateDialog = (isOpen: boolean) => {
         setIsOpenRateDialog(isOpen);
@@ -43,16 +45,15 @@ const page = (props: any) => {
 
     useEffect(() => {
         getProductDetails();
-    }, [itemId]);
+    }, []);
 
     const getProductDetails = async () => {
         try {
             loaderService.showLoader();
             const res = await homeService.getItemInfo(itemId)
             if (res?.status == 200 && res?.success) {
-                console.log('itemDetails', res.data)
                 setItemDetails(res?.data);
-                setItemDetailsCopy(res?.data);
+                setActiveProduct(res?.data.itemDetails.activeProduct);
                 loaderService.hideLoader();
             } else {
                 alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
@@ -65,6 +66,69 @@ const page = (props: any) => {
 
     const updateQty = (even: any) => {
         setQtyValue(naturalNumber(event))
+    }
+
+    const handleSubmitProductReview = (message: any) => {
+        if (message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
+        handleOpenCloseRateDialog(message.isOpen);
+    }
+
+    const handleSubmitQuestion = (message: any) => {
+        if (message.responce) setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: message.responce });
+        handleOpenCloseAskQuestionDialog(message.isOpen);
+    }
+
+    const questionVote = async (questionId: string, vote: string) => {
+        try {
+            loaderService.showLoader();
+            const res = await homeService.questionVote(userId, itemDetails.itemDetails._id, questionId, vote, {})
+            if (res?.status == 200 && res?.success) {
+                alertMessage.addSuccess(MESSAGE.SUCCESS.QUESTION_VOTE_SUBMITTED).show();
+                setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: res?.data });
+                loaderService.hideLoader();
+            } else {
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
+            }
+        } finally {
+            loaderService.hideLoader();
+        }
+    }
+
+    const ratingVote = async (questionId: string, vote: string) => {
+        try {
+            loaderService.showLoader();
+            const res = await homeService.ratingVote(userId, itemDetails.itemDetails._id, questionId, vote, {})
+            if (res?.status == 200 && res?.success) {
+                alertMessage.addSuccess(MESSAGE.SUCCESS.REVIEW_VOTE_SUBMITTED).show();
+                setItemDetails({ similarProducts: itemDetails.similarProducts, itemDetails: res?.data });
+                loaderService.hideLoader();
+            } else {
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
+            }
+        } finally {
+            loaderService.hideLoader();
+        }
+    }
+
+    const changeProductSpecification = async (name: string, value: string) => {
+        let active = {...activeProduct}
+        active[name] = value;
+        try {
+            loaderService.showLoader();
+            const res = await homeService.changeProductSpecification(itemDetails.itemDetails.itemDescription, active)
+            if (res?.status == 200 && res?.success) {
+                setItemDetails(res?.data);
+                setActiveProduct(res?.data.itemDetails.activeProduct);
+                loaderService.hideLoader();
+            } else {
+                alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
+                loaderService.hideLoader();
+            }
+        } finally {
+            loaderService.hideLoader();
+        }
     }
 
     return (
@@ -111,7 +175,7 @@ const page = (props: any) => {
                             </div>
                             <div className='mt-4 flex'>
                                 <div className='ml-[8px] flex items-center justify-between bg-[#388e3c] w-[45px] rounded-[3px] text-white text-[14px] pl-[5px] pr-[5px]'>
-                                    <span>{itemDetails.itemDetails?.ratingsAndReviewsDetails?.overAllRating || 0}</span>
+                                    <span><Decimal value={itemDetails.itemDetails?.ratingsAndReviewsDetails?.overAllRating || 0} decimalDigits={1} /></span>
                                     <IoIosStar className='mb-[1px]' />
                                 </div>
                                 <div className='ml-2 text-[#878787] font-[500]'>{itemDetails.itemDetails?.ratingsAndReviewsDetails?.numberOfRating || 0} Ratings</div>
@@ -124,36 +188,26 @@ const page = (props: any) => {
                                 <div className='ml-[8px] text-[16px] text-[#878787] line-through inline-block'><Currency value={itemDetails.itemDetails.markedPrice * (Number(qtyValue) || 1)} /></div>
                                 <div className='ml-[8px] text-[16px] text-[#26a541] font-[500] tracking-normal'><Decimal value={itemDetails.itemDetails.discountPercent} />% off</div>
                             </div>
-                            <div className='mt-4 fex items-center'>
-                                <div className='mt-4 flex items-center'>
-                                    <div className='w-[100px] text-[16px] font-[500] text-[#212121] capitalize'>quantity</div>
-                                    <div className='flex gap-4'>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>300 g</div>
-                                        </div>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>600 g</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='mt-4 fex items-center'>
-                                <div className='mt-4 flex items-center'>
-                                    <div className='w-[100px] text-[16px] font-[500] text-[#212121] capitalize'>Pack Of</div>
-                                    <div className='flex gap-4'>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>1</div>
-                                        </div>
-                                        <div className='flex'>
-                                            <input type="radio" className='hidden' />
-                                            <div className='flex items-center justify-center border-2 border-solid border-[#e0e0e0] w-[70px] h-[30px] cursor-pointer'>2</div>
+                            {itemDetails.itemDetails.filterAttributesList.map((filterAttr: any, i: number) => {
+                                return (
+                                    <div key={i} className='mt-4 fex items-center'>
+                                        <div className='mt-4 flex items-center'>
+                                            <div className='w-[100px] text-[16px] font-[500] text-[#212121] capitalize'>{filterAttr?.name.split('_').join(' ')}</div>
+                                            <div className='flex gap-4'>
+                                                {filterAttr.items.map((item: any, j: number) => {
+                                                    return (
+                                                        <div key={j} onClick={() => {changeProductSpecification(filterAttr?.name, item.value)}} className='flex'>
+                                                            <input type="radio" value={item.value} className='hidden' name={filterAttr?.name.split('_').join(' ')}/>
+                                                            <div className={(item.selected ? 'border-[#2874f0]' : 'border-[#e0e0e0]') + " flex items-center justify-center border-2 border-solid w-[70px] h-[30px] cursor-pointer"}>{item.value}</div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                )
+                            })
+                            }
                             <div className='mt-4'>
                                 <div className='text-[16px] font-[600] text-[#212121]'>Highlights</div>
                                 <div className='mt-2 border-b border-dashed border-[#c7c7c7]'>
@@ -193,7 +247,7 @@ const page = (props: any) => {
                                         open={isOpenRateDialog}
                                         onClose={() => handleOpenCloseRateDialog(false)}>
                                         <DialogContent>
-                                            <RateProductsDialog />
+                                            <RateProductsDialog id={itemDetails.itemDetails._id} submitProductReview={handleSubmitProductReview} />
                                         </DialogContent>
                                     </Dialog>
                                 </div>
@@ -270,13 +324,13 @@ const page = (props: any) => {
                                             <div className='mt-2 text-[14px] font-[600]'>{rating?.name}</div>
                                             <div className='text-[12px] text-[#6f6f6f]'>{rating?.date}</div>
                                             <div className='mt-2 flex'>
-                                                Nice
+                                                {rating.review}
                                                 <div className='ml-auto mt-auto flex items-center'>
-                                                    <button type='button' className='border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { ratingVote(rating?._id, 'UP') }} type='button' disabled={rating?.likes?.includes(userId)} className={(rating?.likes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidLike />
                                                         <span>{rating?.likes?.length}</span>
                                                     </button>
-                                                    <button type='button' className='ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { ratingVote(rating?._id, 'DOWN') }} type='button' disabled={rating?.disLikes?.includes(userId)} className={(rating?.disLikes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidDislike />
                                                         <span>{rating?.disLikes?.length}</span>
                                                     </button>
@@ -300,23 +354,24 @@ const page = (props: any) => {
                                             open={isOpenAskQuestionDialog}
                                             onClose={() => handleOpenCloseAskQuestionDialog(false)}>
                                             <DialogContent>
-                                                <AskQuestionsDialog />
+                                                <AskQuestionsDialog id={itemDetails.itemDetails._id} submitQuestion={handleSubmitQuestion} />
                                             </DialogContent>
                                         </Dialog>
                                     </div>
                                     {itemDetails?.itemDetails?.questionsAndAnswers.map((question: any, i: number) => {
                                         return (
+                                            question?.question && question?.answer &&
                                             <div key={i} className='flex items-center justify-between mt-2 pt-2 border-t border-dashed border-[#c7c7c7]'>
                                                 <div className='w-[83%]'>
                                                     <div className='text-[14px] font-[600] truncate'> Q{i + 1}: {question?.question}</div>
                                                     <div className='text-[14px] text-[#6f6f6f] truncate'> Ans: {question?.answer} </div>
                                                 </div>
                                                 <div className='flex items-center'>
-                                                    <button type='button' className='border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { questionVote(question?._id, 'UP') }} type='button' disabled={question?.likes?.includes(userId)} className={(question?.likes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidLike />
                                                         <span>{question?.likes?.length}</span>
                                                     </button>
-                                                    <button type='button' className='ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] text-[#ccc] bg-white '>
+                                                    <button onClick={() => { questionVote(question?._id, 'DOWN') }} type='button' disabled={question?.disLikes?.includes(userId)} className={(question?.disLikes?.includes(userId) ? "text-[#2874f0] cursor-not-allowed" : "text-[#ccc]") + " ml-2 border border-solid border-[#ccc] rounded-[4px] w-[45px] h-[30px] flex items-center pl-[5px] pr-[10px] bg-white"}>
                                                         <BiSolidDislike />
                                                         <span>{question?.disLikes?.length}</span>
                                                     </button>
@@ -339,11 +394,11 @@ const page = (props: any) => {
                             <div className='flex items-center justify-between w-full mt-4 text-[16px] font-[500]'>
                                 <div className='font-[600]'>Update Qty</div>
                                 <div className='flex items-center'>
-                                    <button type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
+                                    <button onClick={() => { setQtyValue(String(Number(qtyValue || 0) + 1)) }} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
                                         <IoMdAdd />
                                     </button>
-                                    <input type="text" onChange={(event: any) => {updateQty(event)}} value={qtyValue} className='rounded-[4px] border border-solid border-[#8bc5ff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[55px] h-[30px] flex items-center justify-center m-2 mr-2 text-center' />
-                                    <button type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
+                                    <input type="text" onChange={(event: any) => { updateQty(event) }} value={qtyValue} className='rounded-[4px] border border-solid border-[#8bc5ff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[55px] h-[30px] flex items-center justify-center m-2 mr-2 text-center' />
+                                    <button onClick={() => { setQtyValue(String(Number(qtyValue) > 1 ? Number(qtyValue) - 1 : 1)) }} type='button' className='rounded-[4px] border border-solid border-[#8bc5ff] bg-[#dbedff] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] w-[35px] h-[30px] flex items-center justify-center'>
                                         <IoMdRemove />
                                     </button>
                                 </div>

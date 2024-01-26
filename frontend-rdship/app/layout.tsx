@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RouteGuard >
             <main className='flex flex-col min-h-screen'>
               <Header />
-              <div id="alert-message" className='absolute top-[5px] left-[60px] z-[1000] w-full flex justify-center'></div>
+              <div id="alert-message" className='fixed top-[5px] left-[60px] z-[1400] w-full flex justify-center'></div>
               <div id="loader" className='hidden'><Loader></Loader></div>
               <section className='flex-1 flex flex-col'>
                 {children}
