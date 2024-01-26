@@ -19,6 +19,12 @@ module.exports = {
             AUTH_DATA: {
                 URL: '/account/auth-data/:id'
             },
+            USER_DETAIL: {
+                URL: '/account/user-detail'
+            },
+            UPSERT_DELIVERY_ADDRESS: {
+                URL: '/account/update-address'
+            },
         },
         CART_ITEMS: {
             ADD_ITEM_TO_CART: {

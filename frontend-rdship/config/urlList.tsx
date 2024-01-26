@@ -19,6 +19,9 @@ export const URL_LIST = {
             AUTH_DATA: {
                 URL: '/account/auth-data',
             },
+            USER_DETAIL:{
+                URL:'/account/user-detail'
+            }
         },
         HOME: {
             PRODUCT_DETAILS: {

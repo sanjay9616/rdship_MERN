@@ -39,4 +39,9 @@ export class AuthService {
         return await this.apiService.get(url);
     }
 
+    async getUserDetail(email:String) {
+        let url: string = `${process.env.BASE_URL}${URL_LIST.API.ACCOUNT.USER_DETAIL.URL}?email=${email}`;
+        return await this.apiService.get(url);
+    }
+
 }

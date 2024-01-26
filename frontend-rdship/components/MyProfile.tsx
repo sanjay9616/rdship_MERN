@@ -13,6 +13,8 @@ import { IoMdRemoveCircle } from "react-icons/io";
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 
+import { AuthService } from '@/services/auth.service';
+
 
 const MyProfile = () => {
 
