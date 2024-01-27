@@ -63,6 +63,13 @@ const MyProfile = () => {
         if (isSaveAddressInfo) setIsDisableAddressInfo(true);
         loaderService.hideLoader();
         alertMessage.addSuccess(MESSAGE.SUCCESS.PROFILE_UPDATED).show();
+      }
+      else if (res?.status == 409 && !res?.success) {
+        alertMessage.addError(MESSAGE.ERROR.ENTER_NEW_DETAILS).show();
+        setInitPrsonalInfoFormValues();
+        setInitAddressInfoFormValues();
+        setIsDisablePersonalInfo(true);
+        setIsDisableAddressInfo(true);
       } else {
         alertMessage.addError(MESSAGE.ERROR.SOMETHING_WENT_WRONG).show();
         loaderService.hideLoader();
@@ -95,6 +102,18 @@ const MyProfile = () => {
     updateProfile(payload, false, true);
   }
 
+  const addAddressFromGroup = () => {
+    const len: number = watch().address?.length || 0;
+    setValue(`address.${len}.area`, '', { shouldValidate: true });
+    setValue(`address.${len}.city`, '', { shouldValidate: true });
+    setValue(`address.${len}.pinCode`, '', { shouldValidate: true });
+  }
+
+  const deleteAddressFromGroup = (i: number) => {
+    watch().address.splice(i, 1);
+    saveAddressInfo();
+  }
+
   return (
     <form>
       <div className='p-4 bg-white shadow-[0_3px_6px_rgb(0_0_0_/_16%)] relative'>
@@ -104,10 +123,10 @@ const MyProfile = () => {
         <div className='mb-4 text-[18px] font-[600]'>
           <span>Personal Information</span>
           {isDisablePersonalInfo &&
-            <Button type='button' onClick={() => { editPersonalInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
+            <Button type='button' onClick={editPersonalInfo} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
           }
           {!isDisablePersonalInfo &&
-            <Button type='button' onClick={() => { savePersonalInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Save</Button>
+            <Button type='button' onClick={handleSubmit(savePersonalInfo)} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Save</Button>
           }
         </div>
         <div className='flex items-center justify-between gap-4'>
@@ -132,14 +151,17 @@ const MyProfile = () => {
             </Select>
             <FormHelperText>{false ? 'Full Name Is Required' : ''}</FormHelperText>
           </FormControl>
-          <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
+          <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined" error={errors.email && errors.email.type == 'required' || errors.email && errors.email.type == 'pattern'}>
             <InputLabel>Email Address</InputLabel>
             <OutlinedInput type='text' label="Email Address"
               value={watch().email || ''}
               readOnly={isDisablePersonalInfo}
-              {...register('email')}
+              {...register('email', { required: true, pattern: { value: /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/, message: '' } })}
             />
-            <FormHelperText></FormHelperText>
+            <FormHelperText>
+              {errors.email && errors.email.type == 'required' && 'Email is required.'}
+              {errors.email && errors.email.type == 'pattern' && 'Please enter a valid email'}
+            </FormHelperText>
           </FormControl>
           <FormControl sx={{ mt: 1, width: '100%' }} variant="outlined">
             <InputLabel>Mobile Number</InputLabel>
@@ -156,10 +178,13 @@ const MyProfile = () => {
         <div className='mb-4 text-[18px] font-[600]'>
           <span>Delivery Addresses</span>
           {isDisableAddressInfo &&
-            <Button type='button' onClick={() => { editAddressInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
+            <Button type='button' onClick={editAddressInfo} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Edit</Button>
           }
           {!isDisableAddressInfo &&
-            <Button type='button' onClick={() => { saveAddressInfo() }} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Save</Button>
+            <Button type='button' onClick={handleSubmit(saveAddressInfo)} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Save</Button>
+          }
+          {(!watch().address || watch().address?.length == 0) &&
+            <Button type='button' onClick={addAddressFromGroup} className='ml-4 pl-4 pr-4 text-[#2874f0] hover:text-[#2874f0] bg-[#F2F2F2] hover:bg-[#F2F2F2] shadow-[0_3px_6px_rgb(0_0_0_/_16%)] text-[12px] h-[25px]'>Add Address</Button>
           }
         </div>
         <div>
@@ -183,9 +208,9 @@ const MyProfile = () => {
                         <OutlinedInput type='text'
                           value={watch().address[i].area || ''}
                           readOnly={isDisableAddressInfo}
-                          {...register(`address.${i}.area` as const)}
+                          {...register(`address.${i}.area` as const, { required: true })}
                         />
-                        <FormHelperText>{false ? 'Area Is Required' : ''}</FormHelperText>
+                        <FormHelperText></FormHelperText>
                       </FormControl>
                     </TableCell>
                     <TableCell align="center">
@@ -193,7 +218,7 @@ const MyProfile = () => {
                         <OutlinedInput type='text'
                           value={watch().address[i].city || ''}
                           readOnly={isDisableAddressInfo}
-                          {...register(`address.${i}.city` as const)}
+                          {...register(`address.${i}.city` as const, { required: true })}
                         />
                         <FormHelperText>{false ? 'City Is Required' : ''}</FormHelperText>
                       </FormControl>
@@ -203,17 +228,19 @@ const MyProfile = () => {
                         <OutlinedInput type='text'
                           value={watch().address[i].pinCode || ''}
                           readOnly={isDisableAddressInfo}
-                          {...register(`address.${i}.pinCode` as const)}
+                          {...register(`address.${i}.pinCode` as const, { required: true })}
                         />
                         <FormHelperText>{false ? 'City Is Required' : ''}</FormHelperText>
                       </FormControl>
                     </TableCell>
                     <TableCell align="center">
                       <div className='flex items-center pl-2 pr-2'>
-                        <button type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB]'>
-                          <IoIosAddCircle className='w-full h-full' />
-                        </button>
-                        <button type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB] ml-auto mr-4'>
+                        {watch().address.length - 1 == i &&
+                          <button onClick={handleSubmit(addAddressFromGroup)} type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB]'>
+                            <IoIosAddCircle className='w-full h-full' />
+                          </button>
+                        }
+                        <button onClick={() => deleteAddressFromGroup(i)} type='button' className='h-[25px] w-[25px] flex items-center justify-center text-[#2C82DB] ml-auto mr-4'>
                           <IoMdRemoveCircle className='h-full w-full' />
                         </button>
                       </div>
