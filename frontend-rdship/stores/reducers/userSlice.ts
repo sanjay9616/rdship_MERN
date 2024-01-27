@@ -40,9 +40,10 @@ const userSlice = createSlice({
     reducers: {
         setUserDetails: (state: any, action: any) => Object.assign(state, { ...action.payload }),
         setCartItems: (state: any, action: any) => void (state.cartItems = action.payload),
+        setWishList: (state: any, action: any) => void (state.wishList = action.payload),
     }
 })
 
-export const { setUserDetails, setCartItems } = userSlice.actions;
+export const { setUserDetails, setCartItems, setWishList } = userSlice.actions;
 
 export default userSlice.reducer;

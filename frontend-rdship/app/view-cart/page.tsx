@@ -3,11 +3,9 @@ import Currency from '@/components/Currency';
 import Decimal from '@/components/Decimal';
 import { MESSAGE } from '@/config/message';
 import { AlertMessageService } from '@/services/alertmessage.service';
-import { AuthService } from '@/services/auth.service';
 import { HomeService } from '@/services/home.service';
 import { LoaderService } from '@/services/loader.service';
-import { setIsAuthenticated } from '@/stores/reducers/authenticationSlice';
-import { setCartItems, setUserDetails } from '@/stores/reducers/userSlice';
+import { setCartItems } from '@/stores/reducers/userSlice';
 import { naturalNumber } from '@/utils/natural-number.util';
 import React, { useEffect, useState } from 'react'
 import { IoIosStar, IoMdAdd, IoMdRemove } from 'react-icons/io'
@@ -16,7 +14,6 @@ import { useDispatch, useSelector } from 'react-redux';
 const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
 const loaderService = new LoaderService();
-const authService = new AuthService();
 
 const page = () => {
   const [numberOfItem, setNumberOfItem] = useState<Array<string>>([]);

@@ -14,12 +14,10 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { AuthService } from '@/services/auth.service';
 import { MESSAGE } from '@/config/message';
-import { HomeService } from '@/services/home.service';
 import { AlertMessageService } from '@/services/alertmessage.service';
 import { LoaderService } from '@/services/loader.service';
 import { setUserDetails } from '@/stores/reducers/userSlice';
 
-const homeService = new HomeService();
 const alertMessage = new AlertMessageService();
 const loaderService = new LoaderService();
 const authService = new AuthService()
